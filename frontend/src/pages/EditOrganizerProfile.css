@@ -1,0 +1,130 @@
+.edit-profile-page {
+    padding-top: 120px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .edit-form-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+  }
+  
+  .edit-form-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c2c85;
+    margin-bottom: 20px;
+  }
+  
+  .input-group {
+    margin-bottom: 18px;
+    text-align: left;
+  }
+  
+  .input-group label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2c2c85;
+    display: block;
+    margin-bottom: 6px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid #2c2c85;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+  
+  .editable-input {
+    border: 2px solid #2c2c85;
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+    font-size: 1rem;
+  }
+  
+  .readonly-text {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  
+  .tooltip {
+    font-size: 0.85rem;
+    color: #888;
+    margin-left: 6px;
+  }
+  
+  /* Buttons */
+  .button-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-top: 10px;
+  }
+  
+  .save-btn,
+  .cancel-btn,
+  .back-btn,
+  .edit-btn {
+    width: 100%;
+    max-width: 220px;
+    padding: 12px;
+    border: 2px solid #2c2c85;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: normal;
+    background: #2c2c85;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  
+  .save-btn:hover,
+  .cancel-btn:hover,
+  .edit-btn:hover {
+    background: #5151b3;
+  }
+  
+  /* Danger Zone */
+  .status-message {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #2c2c85;
+  }
+  
+  .danger-zone {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #f44336;
+  }
+  
+  .danger-btn,
+  .clear-btn {
+    background: #f44336;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    margin: 10px 8px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .danger-btn:hover,
+  .clear-btn:hover {
+    background: #d32f2f;
+  }
+  

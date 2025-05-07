@@ -1,0 +1,53 @@
+/* Full-page animated background */
+.background {
+    position: fixed;  /* Fixes it so it stays even when scrolling */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;  /* Ensures it covers the full screen */
+    background: linear-gradient(45deg, #B3E5FC 0%, #525f84 100%);
+    background-size: cover;
+    z-index: -1;
+}
+
+
+/* Smooth animated gradient */
+@keyframes bgAnimation { 
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Falling Icons Container */
+.falling-icons {
+  position: fixed;  /* Makes sure they stay while scrolling */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -5;  /* Keeps it above background but behind text */
+}
+
+/* Falling Animation */
+@keyframes fall {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Individual Falling Icons */
+.flake {
+  position: fixed;
+  top: -10%;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Size of Falling Icons */
+.flake-icon {
+  width: 80px;
+  height: auto;
+  display: block;
+}

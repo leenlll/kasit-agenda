@@ -1,0 +1,85 @@
+/* Admin Dashboard Styles */
+.admin-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 115px;
+  }
+  
+  .admin-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    width: 90%;
+    text-align: center;
+  }
+  
+  .admin-title {
+    text-align: center;
+    font-size: 2.5rem; 
+    font-weight: 700;
+    color: #3e3ea6;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 1s forwards;
+  }
+  
+  .requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  .requests-table th, .requests-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .requests-table th {
+    background: #3e3ea6;
+    color: white;
+  }
+  
+  .status-pending { color: #ff9800; font-weight: bold; }
+  .status-approved { color: #4caf50; font-weight: bold; }
+  .status-denied { color: #d32f2f; font-weight: bold; }
+  
+  .modify-btn {
+    background: #2c2c85;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin: 0 5px;
+  }
+  
+  .modify-btn:hover {
+    background: #222277;
+  }
+  
+  .deny-btn {
+    background: #d32f2f;
+  }
+  
+  .deny-btn:hover {
+    background: #b71c1c;
+  }
+  
+  .home-img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+  }
+  

@@ -1,0 +1,225 @@
+.available-bookings {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding-top: 55px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.requests-img, .home-img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.requests-img:hover, .home-img:hover {
+    transform: scale(1.1);
+}
+
+.bookings-title {
+    font-size: 2.5rem; 
+    font-weight: 700;
+    color: #3e3ea6;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 1s forwards;
+}
+
+.all-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    width: 95%;
+    text-align: center;
+}
+
+.calendar-container {
+    width: 100%;
+    padding: 2rem;
+    background: transparent;
+    border-radius: 20px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-container:hover {
+    transform: scale(1.02);
+}
+
+.react-calendar {
+    width: 100%;
+    max-width: 900px;
+    border: none;
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+}
+
+.react-calendar__navigation button {
+    background: #3e3ea6;
+    color: white;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.react-calendar__navigation button:hover {
+    background: #7175c3;
+}
+
+.react-calendar__tile {
+    text-align: center;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease-in-out;
+    min-height: 60px;
+    position: relative;
+}
+
+.booked-day {
+    font-weight: bold;
+    border-radius: 6px; 
+    position: relative;
+    pointer-events: none; 
+    opacity: 0.9;
+}
+
+.booked-label {
+    font-size: 0.7rem;
+    color: white;
+    background: #eb3232;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.react-calendar__tile:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.react-calendar__tile--now {
+    background: #7175c3 !important;
+    color: white !important;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.react-calendar__tile--active {
+    background: #7175c3 !important;
+    color: white !important;
+    border-radius: 10px;
+}
+
+.react-calendar__tile:hover {
+    background: rgba(200, 200, 200, 0.3) !important;
+    border-radius: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .bookings-title {
+        font-size: 2rem;
+    }
+
+    .calendar-container {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    .react-calendar {
+        font-size: 1.1rem;
+    }
+
+    .react-calendar__tile {
+        padding: 12px;
+        min-height: 55px;
+    }
+}
+
+@media (max-width: 768px) {
+    .bookings-title {
+        font-size: 1.8rem;
+    }
+
+    .calendar-container {
+        width: 95%;
+        padding: 1.3rem;
+    }
+
+    .react-calendar {
+        font-size: 1rem;
+    }
+
+    .react-calendar__tile {
+        padding: 10px;
+        min-height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bookings-title {
+        font-size: 1.6rem;
+    }
+
+    .calendar-container {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .react-calendar {
+        font-size: 0.9rem;
+    }
+
+    .react-calendar__tile {
+        padding: 8px;
+        min-height: 45px;
+    }
+
+    .booked-label {
+        font-size: 0.6rem;
+        bottom: -6px;
+    }
+}
+
+.header-icons img {
+    width: 32px;
+    height: 32px;
+    margin-left: 12px;
+    transition: transform 0.2s ease;
+  }
+  
+  .header-icons img:hover {
+    transform: scale(1.1);
+  }
+  
+  .profile-img,
+  .logout-img {
+    width: 30px;
+    height: 30px;
+  }
+  

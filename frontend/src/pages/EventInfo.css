@@ -1,0 +1,110 @@
+.event-page {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding-top: 110px;
+}
+
+.event-content {
+    width: 90%;
+    max-width: 850px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.event-box, .feedback-section, .feedback-list {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.event-title {
+    text-align: center;
+    font-size: 2.5rem; 
+    font-weight: 700;
+    color: #3e3ea6;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 15px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 1s forwards;
+}
+
+.event-box h2, .feedback-section h2, .feedback-list h2 {
+    font-size: 1.5rem;
+    color: #3e3ea6;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.name-input, .feedback-box {
+    width: 96%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.feedback-submit {
+    width: 100%;
+    background: #3e3ea6;
+    color: white;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.feedback-submit:hover {
+    background: #7175c3;
+}
+
+.star-rating {
+    display: flex;
+    justify-content: flex-start;
+    gap: 5px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.star {
+    color: #bbb;
+    transition: color 0.3s;
+}
+
+.star.selected {
+    color: #ffcc00;
+}
+
+.feedback-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+/* 🔹 Mobile Responsiveness */
+@media (max-width: 768px) {
+    .event-title {
+        font-size: 2rem;
+    }
+
+    .event-content {
+        width: 95%;
+    }
+}

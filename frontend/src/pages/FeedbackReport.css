@@ -1,0 +1,112 @@
+.feedback-report-page {
+  padding-top: 120px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.report-content {
+  width: 90%;
+  max-width: 850px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.report-content h1 {
+  font-size: 2.2rem;
+  color: #2c2c85;
+}
+
+.report-date {
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.color-legend {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.color-legend div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.color-legend span {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.chart-section {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.svg-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pie-text {
+  fill: #000;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.total-label {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.binary-section, .suggestions-section {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.binary-row {
+  margin-bottom: 10px;
+}
+
+.suggestions-section ul {
+  padding-left: 1rem;
+  list-style-type: disc;
+  margin-bottom: 20px;
+}
+
+.report-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.back-button {
+  padding: 12px 24px;
+  background: #2c2c85;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+.no-print {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.back-button:hover {
+  background: #3e3ea6;
+}
