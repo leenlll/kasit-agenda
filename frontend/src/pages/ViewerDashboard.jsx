@@ -15,7 +15,7 @@ const ViewerDashboard = () => {
   const [events, setEvents] = useState({});
   const navigate = useNavigate();
 
-  // ✅ Fetch approved events from Firestore
+  //  Fetch approved events from Firestore
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -34,7 +34,7 @@ const ViewerDashboard = () => {
           const eventData = doc.data();
           console.log("📌 Firestore Event Data:", eventData);
 
-          // ✅ Use eventDate instead of date
+          // Use eventDate instead of date
           if (eventData.eventDate) {
             const formattedDate = eventData.eventDate; // Firestore stores it as "YYYY-MM-DD"
             eventList[formattedDate] = {
@@ -56,16 +56,16 @@ const ViewerDashboard = () => {
     fetchEvents();
   }, []);
 
-  // ✅ Fix: Ensure date format consistency
+  //  Fix: Ensure date format consistency
   const formatDate = (date) => date.toISOString().split("T")[0]; // Ensure "YYYY-MM-DD" format
 
-  // ✅ Assign CSS classes based on event presence
+  // Assign CSS classes based on event presence
   const tileClassName = ({ date }) => {
     const formattedDate = formatDate(date);
     return events[formattedDate] ? "event-day" : "";
   };
 
-  // ✅ Debugging: Log calendar tile checks
+  //  Debugging: Log calendar tile checks
   const tileContent = ({ date }) => {
     const formattedDate = formatDate(date);
     console.log("📅 Checking date:", formattedDate, " → Event exists?", events[formattedDate]);
@@ -75,7 +75,7 @@ const ViewerDashboard = () => {
     ) : null;
   };
 
-  // ✅ Handle clicking on a date with an event
+  // Handle clicking on a date with an event
   const handleDateClick = (value) => {
     const formattedDate = formatDate(value);
     if (events[formattedDate]) {
@@ -116,8 +116,8 @@ const ViewerDashboard = () => {
             onChange={setDate}
             value={date}
             onClickDay={handleDateClick}
-            tileClassName={tileClassName} // ✅ Now correctly defined
-            tileContent={tileContent} // ✅ Logs which dates are checked
+            tileClassName={tileClassName} 
+            tileContent={tileContent}
           />
         </motion.div>
       </main>

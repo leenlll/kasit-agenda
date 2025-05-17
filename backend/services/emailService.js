@@ -1,9 +1,9 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-// 📌 Configure Email Transporter
+// Configure Email Transporter
 const transporter = nodemailer.createTransport({
-  service: "gmail", // Change if using another provider
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER, // Stored in .env
     pass: process.env.EMAIL_PASS, // Stored in .env
@@ -12,24 +12,25 @@ const transporter = nodemailer.createTransport({
   logger: true,
 });
 
-// 📌 Function to Send Emails
+//  Function to Send Emails
 const sendEmail = async (recipient, subject, message) => {
   console.log("📤 Attempting to send email to:", recipient);
+
   try {
-    let info = await transporter.sendMail({
-      from: `"Kasit-agenda" <${process.env.EMAIL_USER}>`, // ✅ Correct syntax
+    const info = await transporter.sendMail({
+      from: `"KASIT Agenda" <${process.env.EMAIL_USER}>`,
       to: recipient,
       subject: subject,
       text: message,
-      html: `<p>${message}</p>`,
     });
-    console.log("✅ Email sent successfully:", info);
+
+    console.log("✅ Email sent:", info.response);
     return { success: true, message: "Email sent successfully!" };
+
   } catch (error) {
-    console.error("❌ Email error:", error);
+    console.error("❌ Email sending failed:", error);
     return { success: false, message: `Failed to send email: ${error.message}` };
   }
 };
-
 
 module.exports = { sendEmail };

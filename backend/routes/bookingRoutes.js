@@ -1,14 +1,14 @@
 const express = require("express");
-const { sendEmail } = require("../services/emailService"); // ✅ Import email service
+const { sendEmail } = require("../services/emailService"); 
 const router = express.Router();
 
-// 📌 Route: Organizer Books an Event (Notify Admins)
+// Route: Organizer Books an Event/Notify Admins
 router.post("/book-event", async (req, res) => {
   console.log("📩 Organizer requested to book an event:", req.body);
 
-  const { organizerEmail, eventName, eventDate, timeFrom, timeTo, location, description } = req.body;
+  const { organizerEmail, organizerName, eventName, eventDate, timeFrom, timeTo, location, description } = req.body;
 
-  // ✅ Validate required fields
+  //  Validate required fields
   if (!organizerEmail || !eventName || !eventDate || !timeFrom || !timeTo || !location || !description) {
     console.error("❌ Missing booking details:", { organizerEmail, eventName, eventDate, timeFrom, timeTo, location, description });
     return res.status(400).json({ success: false, message: "Missing booking details." });
@@ -16,34 +16,75 @@ router.post("/book-event", async (req, res) => {
 
   try {
     console.log("📤 Sending email to admins...");
-    const adminEmails = ["leen.lamper@gmail.com", "leenanghami@gmail.com"]; // ✅ List of admin emails
+    const adminEmails = ["leenanghami@gmail.com"]; 
+    // Send email to all admins 
+const emailPromises = adminEmails.map(async (admin) => {
 
-    // ✅ Send email to all admins asynchronously & catch individual failures
-    const emailPromises = adminEmails.map(async (admin) => {
-      try {
-        await sendEmail(
-          admin,
-          "🔔 New Event Booking Notification",
-          `📅 Event: ${eventName}
-📍 Location: ${location}
-🕒 Time: ${timeFrom} to ${timeTo}
-📖 Description: ${description}
-📆 Date: ${eventDate}
-📨 Organizer Email: ${organizerEmail}`
-        );
-        console.log(`✅ Email sent successfully to ${admin}`);
+    const subject = `📢 New Booking Request: ${eventName} on ${eventDate}`;
+    const message = `
+Hello Admin,
+
+A new event has been requested by an organizer. Here are the details:
+
+📝 Event Name:   ${eventName}
+📅 Date:         ${eventDate}
+🕒 Time:         ${timeFrom} – ${timeTo}
+📍 Location:     ${location}
+📖 Description:  ${description}
+
+👤 Organizer Info:
+Name:  ${organizerName}
+Email: ${organizerEmail}
+
+Please review the request in the admin dashboard.
+
+Thanks,  
+KASIT Agenda System
+    `.trim();
+
+  try {
+await sendEmail(admin, subject, message);
+        console.log(`✅ Email sent to admin: ${admin}`);
       } catch (emailError) {
-        console.error(`❌ Failed to send email to ${admin}:`, emailError);
+        console.error(`❌ Failed to send to admin ${admin}:`, emailError);
       }
     });
 
-    await Promise.all(emailPromises); // ✅ Wait for all email attempts
+    await Promise.all(emailPromises);
+   
+    //Send confirmation to organizer
+  const organizerSubject = ` Your Booking Request for "${eventName}" was Received`;
 
-    console.log("✅ All email notifications processed!");
-    res.status(200).json({ success: true, message: "Booking submitted, admins notified!" });
+const organizerMessage = `
+Hello ${organizerName},
+
+Thank you for submitting your event booking request on KASIT Agenda.
+
+📝 Event:        ${eventName}
+📅 Date:         ${eventDate}
+🕒 Time:         ${timeFrom} – ${timeTo}
+📍 Location:     ${location}
+
+Your request is currently pending review. You will receive another email once it's approved or denied.
+
+If you have any questions, feel free to reply to this email.
+
+— KASIT Agenda Team
+`.trim();
+
+await sendEmail(
+  organizerEmail,
+  organizerSubject,
+  organizerMessage,
+);
+
+console.log(`📧 Confirmation email sent to organizer: ${organizerEmail}`);
+ 
+res.status(200).json({ success: true, message: "Booking submitted. Admins and organizer notified." });
+    
   } catch (error) {
-    console.error("❌ Error sending booking email:", error);
-    res.status(500).json({ success: false, message: "Error sending booking email." });
+    console.error("❌ Email process failed:", error);
+    res.status(500).json({ success: false, message: "Error sending email notifications." });
   }
 });
 

@@ -22,7 +22,7 @@ import EditOrganizerProfile from "./pages/EditOrganizerProfile";
 function App() {
   return (
     <Router>
-      <ToastContainer /> {/* ✅ Add ToastContainer here to render notifications */}
+      <ToastContainer /> 
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/AboutUs" element={<AboutUs />} />
@@ -34,9 +34,9 @@ function App() {
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/view-requests" element={<ViewRequests />} /> 
         <Route path="/modify-request/:id" element={<ModifyRequest />} />
-        <Route path="/admins" element={<AdminSignIn />} /> {/* ✅ Add Admin Sign In route */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* ✅ Use lowercase and hyphen */}
-        <Route path="/add-feedback/:date" element={<AddFeedback />} /> {/* ✅ Added missing feedback submission route */}
+        <Route path="/admins" element={<AdminSignIn />} /> 
+        <Route path="/admin-dashboard" element={<AdminDashboard />} /> 
+        <Route path="/add-feedback/:date" element={<AddFeedback />} /> 
         <Route path="/feedback-report/:date" element={<FeedbackReport />} />
         <Route path="/edit-profile" element={<EditOrganizerProfile />} />
 

@@ -5,9 +5,9 @@ const db = require('./config/firebaseConfig');
 const app = express();
 const PORT = 3000;  
 
-// ✅ Enable CORS
+// Enable CORS
 app.use(cors({
-  origin: "http://localhost:5173", 
+  origin: ["http://localhost:5173", "https://kasit-agenda.web.app"],
   methods: "GET,POST,PUT,DELETE",
   credentials: true
 }));
@@ -15,17 +15,17 @@ app.use(cors({
 // Middleware to parse JSON
 app.use(express.json());
 
-// ✅ Import and Use Booking Routes
+//Booking Routes
 const bookingRoutes = require("./routes/bookingRoutes"); 
 app.use("/api/bookings", bookingRoutes); 
 
-// ✅ Import and Use Email Routes
+//Email Routes
 const emailRoutes = require("./routes/emailRoutes");
 app.use("/api/emails", emailRoutes); 
 
-// ✅ Import and Use Admin Routes (Fix for 404 Error)
-const adminRoutes = require("./routes/adminRoutes");  // ✅ Add this line
-app.use("/api/admin", adminRoutes);  // ✅ Now backend recognizes /api/admin
+// Admin Routes 
+const adminRoutes = require("./routes/adminRoutes");  
+app.use("/api/admin", adminRoutes);  
 
 // Default Route
 app.get('/', (req, res) => {
