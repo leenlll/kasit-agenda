@@ -55,6 +55,8 @@ const BookingPage = () => {
     requiredServices: "",
     supervisorName: "",
     phoneNumber: "",
+    guests: "",
+  whyAttend: "",
   });
 
   // ✅ Handle Input Changes
@@ -225,6 +227,12 @@ const BookingPage = () => {
 
             <label>Supervisor Contact Number:</label>
             <input type="tel" name="phoneNumber" onChange={handleChange} required />
+
+          <label>Guests / Invitees:</label>
+<input type="text"   name="guests"   onChange={handleChange} /> 
+
+<label>Why Should Students Attend?</label>
+<textarea  name="whyAttend" onChange={handleChange} />
 
             <div className="button-group">
   <button type="button" className="submit-button" onClick={() => navigate(-1)}>
