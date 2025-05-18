@@ -31,7 +31,6 @@ router.post("/send-email", async (req, res) => {
 
 
 //  ROUTE 2: Reminder Emails for Tomorrow's Events GET
-// --------------------------------------------------
 router.get("/send-reminders", async (req, res) => {
   const now = new Date();
 

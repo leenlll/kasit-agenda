@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors'); 
 const db = require('./config/firebaseConfig');  
+const reminderRoutes = require("./routes/reminderRoutes");
 
 const app = express();
 const PORT = 3000;  
@@ -26,6 +27,9 @@ app.use("/api/emails", emailRoutes);
 // Admin Routes 
 const adminRoutes = require("./routes/adminRoutes");  
 app.use("/api/admin", adminRoutes);  
+
+//reminder routes
+app.use("/api", reminderRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
