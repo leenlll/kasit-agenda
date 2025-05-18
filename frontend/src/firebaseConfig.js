@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, initializeFirestore } from "firebase/firestore"; // ✅ Updated import
-
+import { sendPasswordResetEmail } from "firebase/auth";
 //  Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD7HVfy8jsFeaH0cpaI3R3RZfUW2EQObjo",
