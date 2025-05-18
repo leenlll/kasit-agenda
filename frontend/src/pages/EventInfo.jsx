@@ -9,6 +9,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  addDoc,
 } from "firebase/firestore";
 import {
   FaClock,
@@ -27,6 +28,9 @@ const EventInfoPage = () => {
   const [event, setEvent] = useState(null);
   const [organizer, setOrganizer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showReminder, setShowReminder] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [reminderStatus, setReminderStatus] = useState("");
 
   useEffect(() => {
     const fetchEventAndOrganizer = async () => {
@@ -61,6 +65,24 @@ const EventInfoPage = () => {
 
     fetchEventAndOrganizer();
   }, [date]);
+
+  const handleReminderSubmit = async () => {
+    if (!emailInput || !event) return;
+
+    try {
+      await addDoc(collection(db, "reminders"), {
+        email: emailInput,
+        eventDate: event.eventDate,
+        eventName: event.eventName,
+        eventId: event.id || "no-id",
+        createdAt: new Date(),
+      });
+      setReminderStatus("✅ Reminder set successfully!");
+    } catch (err) {
+      console.error("Error setting reminder:", err);
+      setReminderStatus("❌ Failed to set reminder.");
+    }
+  };
 
   return (
     <div className="event-page">
@@ -101,7 +123,6 @@ const EventInfoPage = () => {
             <div className="title-underline" />
             <p className="event-description">{event.description || "No description provided."}</p>
 
-            {/* Organizer Info */}
             {organizer && (
               <div className="event-organizer-info">
                 <p><strong>Organizer:</strong> {organizer.firstName} {organizer.lastName}</p>
@@ -110,7 +131,6 @@ const EventInfoPage = () => {
               </div>
             )}
 
-            {/* Event Details */}
             <div className="event-details">
               <p><FaClock className="event-icon" /> <strong>Time Slot:</strong> {event.timeSlot || "N/A"}</p>
               <p><FaMapMarkerAlt className="event-icon" /> <strong>Location:</strong> {event.location || "Not provided"}</p>
@@ -126,19 +146,11 @@ const EventInfoPage = () => {
               )}
             </div>
 
-            {/* Buttons */}
             <div className="button-group">
-              <button className="event-btn" onClick={() => navigate(-1)}>← Back</button>
-              <button className="event-btn" onClick={() => navigate(`/add-feedback/${date}`)}>➕ Add Feedback</button>
-              <button
-                className="event-btn"
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert("📎 Link copied to clipboard!");
-                }}
-              >
-                🔗 Share Event
-              </button>
+              <button className="event-btn" onClick={() => navigate(-1)}>Back</button>
+              <button className="event-btn" onClick={() => navigate(`/add-feedback/${date}`)}>Add Feedback</button>
+              <button className="event-btn" onClick={() => {  navigator.clipboard.writeText(window.location.href);  alert("📎 Link copied to clipboard!");  }}>Share Event</button>
+              <button className="event-btn" onClick={() => setShowReminder(true)}>Remind Me</button>
             </div>
           </motion.div>
         ) : (
@@ -152,8 +164,27 @@ const EventInfoPage = () => {
           </motion.div>
         )}
       </main>
+
+      {showReminder && (
+        <div className="reminder-modal">
+          <div className="reminder-box">
+            <h3>Remind Me About This Event</h3>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+            />
+            <div className="reminder-buttons">
+              <button onClick={handleReminderSubmit}>Set Reminder</button>
+              <button onClick={() => setShowReminder(false)}>Cancel</button>
+            </div>
+            {reminderStatus && <p className="reminder-status">{reminderStatus}</p>}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-//hello
+
 export default EventInfoPage;
