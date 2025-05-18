@@ -67,22 +67,35 @@ const EventInfoPage = () => {
   }, [date]);
 
   const handleReminderSubmit = async () => {
-    if (!emailInput || !event) return;
+  if (!emailInput || !event) return;
 
-    try {
-      await addDoc(collection(db, "reminders"), {
+  try {
+    const response = await fetch("https://kasit-agenda.onrender.com/api/reminders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         email: emailInput,
-        eventDate: event.eventDate,
         eventName: event.eventName,
-        eventId: event.id || "no-id",
-        createdAt: new Date(),
-      });
+        eventDate: event.eventDate,
+        timeSlot: event.timeSlot || "N/A",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
       setReminderStatus("✅ Reminder set successfully!");
-    } catch (err) {
-      console.error("Error setting reminder:", err);
+    } else {
       setReminderStatus("❌ Failed to set reminder.");
     }
-  };
+  } catch (err) {
+    console.error("Error setting reminder:", err);
+    setReminderStatus("❌ Failed to set reminder.");
+  }
+};
+
 
   return (
     <div className="event-page">
