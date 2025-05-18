@@ -1,98 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import "./ViewerDashboard.css";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import {
+  FaClock,
+  FaMapMarkerAlt,
+  FaUsers,
+  FaCalendarAlt,
+} from "react-icons/fa";
+import "./EventInfo.css";
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
 
-const ViewerDashboard = () => {
-  const [date, setDate] = useState(new Date());
-  const [events, setEvents] = useState({});
+const EventInfoPage = () => {
+  const { date } = useParams();
   const navigate = useNavigate();
+  const [event, setEvent] = useState(null);
+  const [organizer, setOrganizer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEventAndOrganizer = async () => {
       try {
-        const q = query(
-          collection(db, "events"),
-          where("status", "==", "Approved")
-        );
-        const snapshot = await getDocs(q);
-        const eventMap = {};
+        if (!date) return;
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const dateKey = data.eventDate;
-          if (!eventMap[dateKey]) eventMap[dateKey] = [];
-          eventMap[dateKey].push({
-            name: data.eventName,
-            description: data.description,
-            guests: data.guests || "TBA",
-            whyAttend: data.whyAttend || "Join us for something special!",
-          });
-        });
+        const eventsCollection = collection(db, "events");
+        const q = query(eventsCollection, where("eventDate", "==", date), where("status", "==", "Approved"));
+        const querySnapshot = await getDocs(q);
 
-        setEvents(eventMap);
-      } catch (err) {
-        console.error("Error loading events:", err);
+        if (!querySnapshot.empty) {
+          const eventData = querySnapshot.docs[0].data();
+          setEvent(eventData);
+
+          const organizerId = eventData.organizerId;
+          if (organizerId) {
+            const organizerRef = doc(db, "organizers", organizerId);
+            const organizerSnap = await getDoc(organizerRef);
+            if (organizerSnap.exists()) {
+              setOrganizer(organizerSnap.data());
+            }
+          }
+        } else {
+          setEvent(null);
+        }
+      } catch (error) {
+        console.error("Error fetching event or organizer:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchEvents();
-  }, []);
-
-  const formatDate = (date) => date.toISOString().split("T")[0];
-
-  const getDaysLeft = (eventDate) => {
-    const today = new Date();
-    const target = new Date(eventDate);
-    const diff = target - today;
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  };
-
-  const tileClassName = ({ date }) =>
-    events[formatDate(date)] ? "event-day" : "";
-
-  const tileContent = ({ date }) => {
-    const dateKey = formatDate(date);
-    const dayEvents = events[dateKey];
-
-    if (!dayEvents) return null;
-
-    return (
-      <div className="calendar-event-wrapper">
-        {dayEvents.map((event, idx) => (
-          <div className="simple-flip-card" key={idx}>
-            <div className="flip-inner">
-              <div className="flip-front">
-                📍 {event.name}
-              </div>
-              <div className="flip-back">
-                <p><strong>💡</strong> {event.whyAttend}</p>
-                <p><strong>👥</strong> {event.guests}</p>
-                <p><strong>⏳</strong> {getDaysLeft(dateKey)}d</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  const handleDateClick = (value) => {
-    const formatted = formatDate(value);
-    if (events[formatted]) {
-      navigate(`/EventInfo/${formatted}`);
-    }
-  };
+    fetchEventAndOrganizer();
+  }, [date]);
 
   return (
-    <div className="viewer-page">
+    <div className="event-page">
       <Background />
       <Header
         showAboutUs={false}
@@ -102,32 +73,87 @@ const ViewerDashboard = () => {
           </Link>
         }
       />
-      <main className="viewer-content">
-        <motion.h1
-          className="viewer-title"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+
+      {event && (
+        <motion.div
+          className="event-date-banner"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Viewer Dashboard
-        </motion.h1>
-        <motion.div
-          className="calendar-container"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Calendar
-            onChange={setDate}
-            value={date}
-            onClickDay={handleDateClick}
-            tileClassName={tileClassName}
-            tileContent={tileContent}
-          />
+          <FaCalendarAlt className="banner-icon" />
+          <span className="banner-date">{date}</span>
         </motion.div>
+      )}
+
+      <main className="event-content">
+        {loading ? (
+          <p>Loading event details...</p>
+        ) : event ? (
+          <motion.div
+            className="event-box fade-scroll"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h1 className="event-title hover-glow">{event.eventName || "Untitled Event"}</h1>
+            <div className="title-underline" />
+            <p className="event-description">{event.description || "No description provided."}</p>
+
+            {/* Organizer Info */}
+            {organizer && (
+              <div className="event-organizer-info">
+                <p><strong>Organizer:</strong> {organizer.firstName} {organizer.lastName}</p>
+                <p><strong>Organization:</strong> {organizer.organization}</p>
+                <p><strong>Email:</strong> <a href={`mailto:${organizer.email}`}>{organizer.email}</a></p>
+              </div>
+            )}
+
+            {/* Event Details */}
+            <div className="event-details">
+              <p><FaClock className="event-icon" /> <strong>Time Slot:</strong> {event.timeSlot || "N/A"}</p>
+              <p><FaMapMarkerAlt className="event-icon" /> <strong>Location:</strong> {event.location || "Not provided"}</p>
+              <p><FaUsers className="event-icon" /> <strong>Guests:</strong> {event.guests?.trim() || "None"}</p>
+              {event.targetedStudents && (
+                <p><strong>Targeted Students:</strong> {event.targetedStudents}</p>
+              )}
+              {event.resources && (
+                <p><strong>Resources:</strong> {event.resources}</p>
+              )}
+              {event.id && (
+                <p><strong>Event ID:</strong> {event.id}</p>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="button-group">
+              <button className="event-btn" onClick={() => navigate(-1)}>← Back</button>
+              <button className="event-btn" onClick={() => navigate(`/add-feedback/${date}`)}>➕ Add Feedback</button>
+              <button
+                className="event-btn"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("📎 Link copied to clipboard!");
+                }}
+              >
+                🔗 Share Event
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="no-event-box"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="no-event">⚠️ No approved event found for this date.</p>
+          </motion.div>
+        )}
       </main>
     </div>
   );
 };
 
-export default ViewerDashboard;
+export default EventInfoPage;
