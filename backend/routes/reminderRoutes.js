@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { db } = require("../firebaseAdmin"); 
+const db = require("../config/firebaseConfig");
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
