@@ -48,7 +48,7 @@ const OrganizerSignUp = () => {
     );
     const user = userCredential.user;
 
-    // ✅ Store organizer details in Firestore
+    
     await setDoc(doc(db, "organizers", user.uid), {
       uid: user.uid,
       firstName: formData.firstName,
