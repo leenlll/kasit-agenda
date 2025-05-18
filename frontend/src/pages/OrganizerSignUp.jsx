@@ -27,39 +27,45 @@ const OrganizerSignUp = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (Object.values(formData).some((value) => value.trim() === "")) {
-      setError("⚠️ All fields are required.");
-      return;
-    }
+  if (Object.values(formData).some((value) => value.trim() === "")) {
+    setError("⚠️ All fields are required.");
+    return;
+  }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
+  if (formData.password !== formData.ConfirmPassword) {
+    setError("❌ Passwords do not match.");
+    return;
+  }
 
-      // ✅ Store organizer details in Firestore
-      await setDoc(doc(db, "organizers", user.uid), {
-        uid: user.uid,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        organization: formData.organization,
-        phone: formData.phone,
-        role: "organizer",
-      });
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    );
+    const user = userCredential.user;
 
-      alert("✅ Registration successful!");
-      navigate("/organizer-signin");
-    } catch (error) {
-      setError(error.message);
-    }
-  };
+    
+    await setDoc(doc(db, "organizers", user.uid), {
+      uid: user.uid,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      organization: formData.organization,
+      phone: formData.phone,
+      role: "organizer",
+    });
+
+    alert("✅ Registration successful!");
+    navigate("/organizer-signin");
+  } catch (error) {
+    setError(error.message);
+  }
+};
+
 
   return (
     <div className="organizer-signup-page">

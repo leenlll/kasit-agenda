@@ -7,8 +7,8 @@ import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
 import organizerImg from "../assets/organizer.png";
-import { auth } from "../firebaseConfig"; 
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 const OrganizerSignIn = () => {
   const navigate = useNavigate();
@@ -16,18 +16,22 @@ const OrganizerSignIn = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+
+  const [showResetPopup, setShowResetPopup] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
+
   const handleSignIn = async (e) => {
     e.preventDefault();
-  
+
     if (!email || !password) {
       setError("⚠️ Please fill in both fields.");
       return;
     }
-  
+
     try {
-      // ✅ Authenticate organizer
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/available-bookings"); // Redirect after login
+      navigate("/available-bookings");
     } catch (error) {
       setError("❌ Invalid email or password.");
     }
@@ -64,7 +68,6 @@ const OrganizerSignIn = () => {
           transition={{ duration: 0.6 }}
         />
 
-        {/* Sign-In Form */}
         <motion.form
           className="signin-form"
           initial={{ opacity: 0, y: 20 }}
@@ -73,19 +76,74 @@ const OrganizerSignIn = () => {
           onSubmit={handleSignIn}
         >
           {error && <p className="error-message">{error}</p>}
+
           <label>Email</label>
-          <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
           <label>Password</label>
-          <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-          <button type="submit" className="signin-button">Sign In</button>
+          <p
+            className="forgot-password"
+            onClick={() => setShowResetPopup(true)}
+          >
+            Forgot Password?
+          </p>
+
+          <button type="submit" className="signin-button">
+            Sign In
+          </button>
         </motion.form>
 
-        {/* Sign Up Link */}
         <p className="signup-text">
           Don't have an account? <Link to="/organizer-signup">Sign Up Here</Link>
         </p>
+
+
+        {showResetPopup && (
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <button className="close-button" onClick={() => setShowResetPopup(false)}>✖</button>
+              <h2>Reset Password</h2>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+              />
+              <button
+                className="reset-submit-button"
+                onClick={async () => {
+                  if (!resetEmail) {
+                    setResetMessage("⚠️ Please enter your email.");
+                    return;
+                  }
+                  try {
+                    await sendPasswordResetEmail(auth, resetEmail);
+                    setResetMessage("✅ Reset email sent!");
+                  } catch (error) {
+                    setResetMessage("❌ Failed to send reset email.");
+                  }
+                }}
+              >
+                Send Reset Email
+              </button>
+              {resetMessage && <p className="reset-message">{resetMessage}</p>}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
