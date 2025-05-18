@@ -10,32 +10,18 @@
 // import viewRequestsIcon from "../assets/view-requests.png";
 // import { db, auth } from "../firebaseConfig";
 // import { collection, addDoc } from "firebase/firestore";
-// import axios from "axios";
 // import profileIcon from "../assets/profile.png";
 // import logoutIcon from "../assets/logout.png";
 // import { signOut } from "firebase/auth";
 
-
 // const BookingPage = () => {
 //   const navigate = useNavigate();
 //   const location = useLocation();
-//   const handleLogout = async () => {
-//     const confirmLogout = window.confirm("Are you sure you want to log out?");
-//     if (!confirmLogout) return;
-  
-//     try {
-//       await signOut(auth);
-//       navigate("/");
-//     } catch (error) {
-//       console.error("❌ Logout failed:", error);
-//     }
-//   };
-  
 //   const selectedDate = new URLSearchParams(location.search).get("date");
 
 //   const [user, setUser] = useState(auth.currentUser);
-
-//   // ✅ Fix memory leak by cleaning up onAuthStateChanged listener
+//   const [timeError, setTimeError] = useState("");
+  
 //   useEffect(() => {
 //     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
 //       setUser(currentUser);
@@ -56,25 +42,41 @@
 //     supervisorName: "",
 //     phoneNumber: "",
 //     guests: "",
-//   whyAttend: "",
+//     whyAttend: "",
 //   });
 
-//   // ✅ Handle Input Changes
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
+
 //     setFormData((prev) => ({ ...prev, [name]: value }));
+
+//     // ✅ Time Validation
+//     if (name === "timeFrom" || name === "timeTo") {
+//       const { timeFrom, timeTo } = { ...formData, [name]: value };
+
+//       if (timeFrom && timeTo) {
+//         if (timeFrom >= timeTo) {
+//           setTimeError("End time cannot be earlier than or equal to the start time.");
+//         } else {
+//           setTimeError("");
+//         }
+//       }
+//     }
 //   };
 
-//   // ✅ Handle Form Submission
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 
 //     if (!user) {
-//       toast.error("⚠️ Please sign in first!");
+//       toast.error("Please sign in first!");
 //       return;
 //     }
 
-//     // ✅ Ensure all required fields are filled
+//     if (timeError) {
+//       toast.error(timeError);
+//       return;
+//     }
+
 //     const requiredFields = [
 //       "eventType",
 //       "eventName",
@@ -90,7 +92,7 @@
 
 //     for (const field of requiredFields) {
 //       if (!formData[field]) {
-//         toast.error(`⚠️ Please fill in the ${field.replace(/([A-Z])/g, " $1").trim()} field.`);
+//         toast.error(`Please fill in the ${field.replace(/([A-Z])/g, " $1").trim()} field.`);
 //         return;
 //       }
 //     }
@@ -104,68 +106,52 @@
 //         status: "Pending",
 //       };
 
-//       console.log("📤 Saving booking to Firestore:", bookingData);
-
-//       const docRef = await addDoc(collection(db, "bookings"), bookingData);
-//       console.log("✅ Booking saved with ID:", docRef.id);
-
-//       await sendBookingEmail(bookingData);
+//       await addDoc(collection(db, "bookings"), bookingData);
 //       toast.success("Booking submitted successfully!");
 //       setTimeout(() => navigate("/view-requests"), 2000);
 //     } catch (error) {
-//       console.error("❌ Firestore Error:", error);
-//       toast.error("⚠️ Failed to submit booking. Please try again.");
+//       console.error("Firestore Error:", error);
+//       toast.error("Failed to submit booking. Please try again.");
 //     }
 //   };
 
-//   // ✅ Send Email Notification to Admins
-//   const sendBookingEmail = async (bookingData) => {
+//   const handleLogout = async () => {
+//     const confirmLogout = window.confirm("Are you sure you want to log out?");
+//     if (!confirmLogout) return;
+
 //     try {
-//       console.log("📨 Sending booking request:", bookingData);
-  
-//       const emailData = {
-//         organizerEmail: bookingData.organizerEmail,
-//         eventName: bookingData.eventName,
-//         eventDate: bookingData.eventDate,
-//         timeFrom: bookingData.timeFrom,
-//         timeTo: bookingData.timeTo,
-//         location: bookingData.location, // ✅ Location instead of place
-//         description: bookingData.description,
-//       };
-  
-//       const response = await axios.post("http://localhost:3000/api/bookings/book-event", emailData);
-//       console.log("✅ Admins notified via email!", response.data);
+//       await signOut(auth);
+//       navigate("/");
 //     } catch (error) {
-//       console.error("❌ Error sending email:", error.response ? error.response.data : error);
+//       console.error("Logout failed:", error);
 //     }
 //   };
-  
 
 //   return (
 //     <div className="booking-page">
 //       <Background />
 //       <Header
-//   showAboutUs={false}
-//   extraRightContent={
-//     <div className="header-icons">
-//       <Link to="/edit-profile">
-//         <img src={profileIcon} alt="Profile" className="profile-icon" />
-//       </Link>
-//       <img
-//         src={logoutIcon}
-//         alt="Logout"
-//         className="logout-icon"
-//         onClick={handleLogout}
+//         showAboutUs={false}
+//         extraRightContent={
+//           <div className="header-icons">
+//             <Link to="/edit-profile">
+//               <img src={profileIcon} alt="Profile" className="profile-icon" />
+//             </Link>
+//             <img
+//               src={logoutIcon}
+//               alt="Logout"
+//               className="logout-icon"
+//               onClick={handleLogout}
+//             />
+//             <Link to="/view-requests">
+//               <img src={viewRequestsIcon} alt="View Requests" className="requests-img" />
+//             </Link>
+//             <Link to="/">
+//               <img src={home} alt="Home" className="home-img" />
+//             </Link>
+//           </div>
+//         }
 //       />
-//       <Link to="/view-requests">
-//         <img src={viewRequestsIcon} alt="View Requests" className="requests-img" />
-//       </Link>
-//       <Link to="/">
-//         <img src={home} alt="Home" className="home-img" />
-//       </Link>
-//     </div>
-//   }
-// />
 
 //       <div className="booking-form">
 //         <motion.div
@@ -185,10 +171,7 @@
 //               <option value="">Select Activity Type</option>
 //               <option value="Initiative">Initiative</option>
 //               <option value="Lecture">Lecture</option>
-//               <option value="Training Course">Training Course</option>
 //               <option value="Workshop">Workshop</option>
-//               <option value="Exhibition">Exhibition</option>
-//               <option value="Competition">Competition</option>
 //             </select>
 
 //             <label>Activity Name:</label>
@@ -202,47 +185,58 @@
 
 //             <label>Time:</label>
 //             <div className="time-inputs">
-//               <input type="time" name="timeFrom" onChange={handleChange} required />
+//                <input type="time" name="timeFrom" onChange={handleChange} required /> 
+              
 //               <span> to </span>
 //               <input type="time" name="timeTo" onChange={handleChange} required />
 //             </div>
 
+//             {timeError && <p className="error-message">{timeError}</p>}
+
 //             <label>Location:</label>
 //             <select name="location" onChange={handleChange} required>
 //               <option value="">Select Location</option>
-//               <option value="Hall A">Hall A</option>
-//               <option value="Hall B">Hall B</option>
-//               <option value="Outdoor Area">Outdoor Area</option>
-//               <option value="Main Auditorium">Main Auditorium</option>
+//               <option value="Al-Louzy Auditorium">Al-Louzy Auditorium</option>
+//               <option value="Ground Floor">Ground Floor</option>
+//               <option value="101">Lecture Hall 101</option>
+//               <option value="102">Lecture Hall 102</option>
+//               <option value="103">Lecture Hall 103</option>
+//               <option value="104">Lecture Hall 104</option>
+//               <option value="105">Lecture Hall 105</option>
+//               <option value="201">Lecture Hall 201</option>
+//               <option value="202">Lecture Hall 202</option>
+//               <option value="203">Lecture Hall 203</option>
+//               <option value="204">Lecture Hall 204</option>
+//               <option value="205">Lecture Hall 205</option>
+//               <option value="301">Lecture Hall 301</option>
+//               <option value="302">Lecture Hall 302</option>
+//               <option value="303">Lecture Hall 303</option>
 //             </select>
 
 //             <label>Target Audience:</label>
 //             <input type="text" name="targetedStudents" onChange={handleChange} required />
 
 //             <label>Required Support Services:</label>
-//             <textarea name="requiredServices" onChange={handleChange} required />
+//             <textarea name="requiredServices" onChange={handleChange} />
 
-//             <label>Activity Supervisor (Faculty/Staff):</label>
+//             <label>Activity Supervisor:</label>
 //             <input type="text" name="supervisorName" onChange={handleChange} required />
 
 //             <label>Supervisor Contact Number:</label>
 //             <input type="tel" name="phoneNumber" onChange={handleChange} required />
 
-//           <label>Guests / Invitees:</label>
-// <input type="text"   name="guests"   onChange={handleChange} /> 
+//             <label>Guests / Invitees:</label>
+//             <input type="text" name="guests" onChange={handleChange} />
 
-// <label>Why Should Students Attend?</label>
-// <textarea  name="whyAttend" onChange={handleChange} />
+//             <label>Why Should Students Attend?</label>
+//             <textarea name="whyAttend" onChange={handleChange} />
 
 //             <div className="button-group">
-//   <button type="button" className="submit-button" onClick={() => navigate(-1)}>
-//     Back
-//   </button>
-//   <button type="submit" className="submit-button">
-//     Submit
-//   </button>
-// </div>
-
+//               <button type="button" onClick={() => navigate(-1)}>
+//                 Back
+//               </button>
+//               <button type="submit">Submit</button>
+//             </div>
 //           </motion.form>
 //         </motion.div>
 //       </div>
@@ -251,7 +245,6 @@
 // };
 
 // export default BookingPage;
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -275,7 +268,7 @@ const BookingPage = () => {
 
   const [user, setUser] = useState(auth.currentUser);
   const [timeError, setTimeError] = useState("");
-  
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
@@ -301,19 +294,15 @@ const BookingPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // ✅ Time Validation
     if (name === "timeFrom" || name === "timeTo") {
       const { timeFrom, timeTo } = { ...formData, [name]: value };
 
-      if (timeFrom && timeTo) {
-        if (timeFrom >= timeTo) {
-          setTimeError("End time cannot be earlier than or equal to the start time.");
-        } else {
-          setTimeError("");
-        }
+      if (timeFrom && timeTo && timeFrom >= timeTo) {
+        setTimeError("End time cannot be earlier than or equal to the start time.");
+      } else {
+        setTimeError("");
       }
     }
   };
@@ -328,6 +317,25 @@ const BookingPage = () => {
 
     if (timeError) {
       toast.error(timeError);
+      return;
+    }
+
+    if (!selectedDate) {
+      toast.error("Please select a date.");
+      return;
+    }
+
+    // Get the current date without the time
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Convert the selected date to a Date object
+    const selectedDateObject = new Date(selectedDate);
+    selectedDateObject.setHours(0, 0, 0, 0);
+
+    // Check if the selected date is in the past
+    if (selectedDateObject < today) {
+      alert("You cannot book an event for a past date.");
       return;
     }
 
@@ -439,8 +447,7 @@ const BookingPage = () => {
 
             <label>Time:</label>
             <div className="time-inputs">
-               <input type="time" name="timeFrom" onChange={handleChange} required /> 
-              
+              <input type="time" name="timeFrom" onChange={handleChange} required />
               <span> to </span>
               <input type="time" name="timeTo" onChange={handleChange} required />
             </div>
@@ -450,45 +457,18 @@ const BookingPage = () => {
             <label>Location:</label>
             <select name="location" onChange={handleChange} required>
               <option value="">Select Location</option>
-              <option value="Al-Louzy Auditorium">Al-Louzy Auditorium</option>
-              <option value="Ground Floor">Ground Floor</option>
               <option value="101">Lecture Hall 101</option>
               <option value="102">Lecture Hall 102</option>
-              <option value="103">Lecture Hall 103</option>
-              <option value="104">Lecture Hall 104</option>
-              <option value="105">Lecture Hall 105</option>
-              <option value="201">Lecture Hall 201</option>
-              <option value="202">Lecture Hall 202</option>
-              <option value="203">Lecture Hall 203</option>
-              <option value="204">Lecture Hall 204</option>
-              <option value="205">Lecture Hall 205</option>
-              <option value="301">Lecture Hall 301</option>
-              <option value="302">Lecture Hall 302</option>
-              <option value="303">Lecture Hall 303</option>
             </select>
 
             <label>Target Audience:</label>
             <input type="text" name="targetedStudents" onChange={handleChange} required />
 
-            <label>Required Support Services:</label>
-            <textarea name="requiredServices" onChange={handleChange} />
-
-            <label>Activity Supervisor:</label>
-            <input type="text" name="supervisorName" onChange={handleChange} required />
-
             <label>Supervisor Contact Number:</label>
             <input type="tel" name="phoneNumber" onChange={handleChange} required />
 
-            <label>Guests / Invitees:</label>
-            <input type="text" name="guests" onChange={handleChange} />
-
-            <label>Why Should Students Attend?</label>
-            <textarea name="whyAttend" onChange={handleChange} />
-
             <div className="button-group">
-              <button type="button" onClick={() => navigate(-1)}>
-                Back
-              </button>
+              <button type="button" onClick={() => navigate(-1)}>Back</button>
               <button type="submit">Submit</button>
             </div>
           </motion.form>
