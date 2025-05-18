@@ -450,8 +450,21 @@ const BookingPage = () => {
             <label>Location:</label>
             <select name="location" onChange={handleChange} required>
               <option value="">Select Location</option>
-              <option value="Hall A">Hall A</option>
-              <option value="Hall B">Hall B</option>
+              <option value="Al-Louzy Auditorium">Al-Louzy Auditorium</option>
+              <option value="Ground Floor">Ground Floor</option>
+              <option value="101">Lecture Hall 101</option>
+              <option value="102">Lecture Hall 102</option>
+              <option value="103">Lecture Hall 103</option>
+              <option value="104">Lecture Hall 104</option>
+              <option value="105">Lecture Hall 105</option>
+              <option value="201">Lecture Hall 201</option>
+              <option value="202">Lecture Hall 202</option>
+              <option value="203">Lecture Hall 203</option>
+              <option value="204">Lecture Hall 204</option>
+              <option value="205">Lecture Hall 205</option>
+              <option value="301">Lecture Hall 301</option>
+              <option value="302">Lecture Hall 302</option>
+              <option value="303">Lecture Hall 303</option>
             </select>
 
             <label>Target Audience:</label>
