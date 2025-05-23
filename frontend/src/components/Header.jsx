@@ -19,7 +19,7 @@ const Header = ({ showAboutUs = true, extraRightContent }) => {
         </a>
       </div>
       <div className="header-section header-center">
-        <a href="#" className="logo-link">
+<a href="https://kasit-agenda.web.app/" className="logo-link" target="_self">
           <img src={kasitagendalogo} alt="KASIT-agenda Logo" className="logo logo-center" />
         </a>
       </div>

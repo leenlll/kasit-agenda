@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import view from '../assets/view.png';
 import book from '../assets/book.png';
 import admin from '../assets/admin.png';
+import student from '../assets/studenticon.png';
 
 const LandingPage = () => {
   const goToViewOnly = () => {
@@ -18,7 +19,9 @@ const LandingPage = () => {
   const goToAdmins = () => {
     window.location.href = '/admins';  
 };
-
+const goToStudents = () => {
+  window.location.href = '/StudentSignIn';
+};
 
   return (
     <div className="landing-page">
@@ -40,12 +43,12 @@ const LandingPage = () => {
 
 
         <div className="cards-container">
-  <div className="button-card" onClick={goToViewOnly}>
+            <div className="button-card" onClick={goToStudents}>
     <div className="card-content">
-      <img src={view} alt="View Only" className="card-image" />
-      <h4 className="card-title">View Only</h4> 
+      <img src={student} alt="Students" className="card-image" />
+      <h4 className="card-title">Students</h4>
     </div>
-    <div className="hover-description">Check out the latest events!</div>
+    <div className="hover-description">Check out and register for events</div>
   </div>
   
   <div className="button-card" onClick={goToBooking}>
@@ -63,6 +66,16 @@ const LandingPage = () => {
     </div>
     <div className="hover-description">Manage events and permissions</div>
   </div>
+  
+
+  <div className="button-card" onClick={goToViewOnly}>
+    <div className="card-content">
+      <img src={view} alt="View Only" className="card-image" />
+      <h4 className="card-title">View Only</h4> 
+    </div>
+    <div className="hover-description">Check out the latest events!</div>
+  </div>
+
 </div>
 
       </main>

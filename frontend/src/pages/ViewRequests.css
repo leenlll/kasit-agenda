@@ -1,100 +1,199 @@
 /* View Requests Page Styles */
 .view-requests-page {
-    position: relative;
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    overflow: hidden;
-    padding-top: 110px; /* Space for fixed header */
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding-top: 110px; /* Space for fixed header */
 }
 
 .requests-content {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
-    max-width: 900px;
-    width: 90%;
-    text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  width: 90%;
+  text-align: center;
 }
 
 .requests-title {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #2c2c85;
-    margin-bottom: 20px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c2c85;
+  margin-bottom: 20px;
 }
 
 .requests-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
-.requests-table th, .requests-table td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
+.requests-table th,
+.requests-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
 }
 
 .requests-table th {
-    background: #3e3ea6;
-    color: white;
+  background: #3e3ea6;
+  color: white;
 }
 
 /* Status Colors */
-.status-pending { color: #ff9800; font-weight: bold; }
-.status-approved { color: #4caf50; font-weight: bold; }
-.status-denied { color: #d32f2f; font-weight: bold; }
+.status-pending {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+.status-approved {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.status-denied {
+  color: #d32f2f;
+  font-weight: bold;
+}
 
 .modify-btn {
-    background: #2c2c85;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  background: #2c2c85;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.export-pdf-btn {
+  margin-top: 20px;
+  margin-left: 10px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.export-pdf-btn:hover {
+  background-color: #388e3c;
 }
 
 .modify-btn:hover {
-    background: #2c2c85;
+  background: #1e1e6e;
 }
-
+.report-btn{
+    background:#ddd;
+    border-color: dimgrey;
+}
 .back-button {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 15px;
-    background: #5151b3;
-    color: white;
-    font-size: 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.3s;
-    width: 100%;
-    max-width: 200px;
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 15px;
+  background: #5151b3;
+  color: white;
+  font-size: 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.3s;
+  width: 100%;
+  max-width: 200px;
 }
 
 .back-button:hover {
-    background: #5151b3;
+  background: #3a3a91;
 }
+
 .header-icons img {
-    width: 32px;
-    height: 32px;
-    margin-left: 12px;
-    transition: transform 0.2s ease;
-  }
-  
-  .header-icons img:hover {
-    transform: scale(1.1);
-  }
-  
-  .profile-img,
-  .logout-img {
-    width: 30px;
-    height: 30px;
-  }
+  width: 32px;
+  height: 32px;
+  margin-left: 12px;
+  transition: transform 0.2s ease;
+}
+
+.header-icons img:hover {
+  transform: scale(1.1);
+}
+
+.profile-img,
+.logout-img {
+  width: 30px;
+  height: 30px;
+}
+
+/* Registered Student Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #3e3ea6;
+}
+
+.modal-content ul {
+  padding-left: 20px;
+}
+
+.modal-content li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.close-modal-btn {
+  margin-top: 20px;
+  padding: 8px 16px;
+  background-color: #3e3ea6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+/* Registered List fallback (if modal is not used) */
+.registered-list {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.registered-list ul {
+  padding-left: 16px;
+  margin: 4px 0;
+}
+
+.registered-list li {
+  margin-bottom: 4px;
+}

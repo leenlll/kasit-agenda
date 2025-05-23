@@ -121,8 +121,6 @@ const AvailableBookings = () => {
     </div>
   }
 />
-
-
       <main className="bookings-content">
         <div className="all-container">
           <motion.h1

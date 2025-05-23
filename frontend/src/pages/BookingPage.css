@@ -192,5 +192,7 @@ Modified Time Inputs
     .button-group {
         flex-direction: column;
         gap: 10px;
+        background: #3e3ea6;
+    color: white;
     }
 }

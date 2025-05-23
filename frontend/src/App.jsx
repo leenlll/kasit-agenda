@@ -18,6 +18,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AddFeedback from "./pages/AddFeedback";
 import FeedbackReport from './pages/FeedbackReport';
 import EditOrganizerProfile from "./pages/EditOrganizerProfile";
+import StudentSignIn from './pages/StudentSignIn';
+import MyEvents from "./pages/MyEvents";
 
 function App() {
   return (
@@ -39,6 +41,9 @@ function App() {
         <Route path="/add-feedback/:date" element={<AddFeedback />} /> 
         <Route path="/feedback-report/:date" element={<FeedbackReport />} />
         <Route path="/edit-profile" element={<EditOrganizerProfile />} />
+        <Route path="/StudentSignIn" element={<StudentSignIn />} />
+        <Route path="/viewer-dashboard" element={<ViewerDashboard />} />
+        <Route path="/my-events" element={<MyEvents />} />
 
 
         </Routes>

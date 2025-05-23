@@ -1,44 +1,42 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  getDoc,
-  addDoc,
-} from "firebase/firestore";
-import {
-  FaClock,
-  FaMapMarkerAlt,
-  FaUsers,
-  FaCalendarAlt,
-} from "react-icons/fa";
+import { db, auth } from "../firebaseConfig";
+import { updateDoc, arrayUnion, collection, query, where, getDocs, doc, getDoc,} from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { FaClock, FaMapMarkerAlt, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import "./EventInfo.css";
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
 
 const EventInfoPage = () => {
+
+  const [userChecked, setUserChecked] = useState(false);
   const { date } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [organizer, setOrganizer] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showReminder, setShowReminder] = useState(false);
-  const [emailInput, setEmailInput] = useState("");
-  const [reminderStatus, setReminderStatus] = useState("");
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setUserChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchEventAndOrganizer = async () => {
       try {
-        if (!date) return;
-
-        const eventsCollection = collection(db, "events");
-        const q = query(eventsCollection, where("eventDate", "==", date), where("status", "==", "Approved"));
+        const q = query(
+          collection(db, "events"),
+          where("eventDate", "==", date),
+          where("status", "==", "Approved")
+        );
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -57,7 +55,7 @@ const EventInfoPage = () => {
           setEvent(null);
         }
       } catch (error) {
-        console.error("Error fetching event or organizer:", error);
+        console.error("Error fetching event/organizer:", error);
       } finally {
         setLoading(false);
       }
@@ -66,36 +64,46 @@ const EventInfoPage = () => {
     fetchEventAndOrganizer();
   }, [date]);
 
-  const handleReminderSubmit = async () => {
-  if (!emailInput || !event) return;
+  useEffect(() => {
+    const checkRegistration = async () => {
+      if (!user || !event) return;
 
-  try {
-    const response = await fetch("https://kasit-agenda.onrender.com/api/reminders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: emailInput,
-        eventName: event.eventName,
-        eventDate: event.eventDate,
-        timeSlot: event.timeSlot || "N/A",
-      }),
-    });
+      try {
+        const studentRef = doc(db, "students", user.uid);
+        const studentSnap = await getDoc(studentRef);
+        if (studentSnap.exists()) {
+          const registeredEvents = studentSnap.data().registeredEvents || [];
+          const formattedEvent = `${event.eventName} - ${date}`;
+          if (registeredEvents.includes(formattedEvent)) {
+            setIsRegistered(true);
+          }
+        }
+      } catch (err) {
+        console.error("Registration check failed:", err);
+      }
+    };
 
-    const data = await response.json();
+    checkRegistration();
+  }, [user, event]);
 
-    if (data.success) {
-      setReminderStatus("✅ Reminder set successfully!");
-    } else {
-      setReminderStatus("❌ Failed to set reminder.");
+  const handleRegister = async () => {
+    if (!user || !event) {
+      alert("❌ You must be signed in to register.");
+      return;
     }
-  } catch (err) {
-    console.error("Error setting reminder:", err);
-    setReminderStatus("❌ Failed to set reminder.");
-  }
-};
 
+    try {
+      const studentRef = doc(db, "students", user.uid);
+      await updateDoc(studentRef, {
+        registeredEvents: arrayUnion(`${event.eventName} - ${date}`),
+      });
+      setIsRegistered(true);
+      alert("✅ You are now registered for this event.");
+    } catch (error) {
+      console.error("❌ Registration error:", error);
+      alert("Something went wrong.");
+    }
+  };
 
   return (
     <div className="event-page">
@@ -132,9 +140,13 @@ const EventInfoPage = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h1 className="event-title hover-glow">{event.eventName || "Untitled Event"}</h1>
+            <h1 className="event-title hover-glow">
+              {event.eventName || "Untitled Event"}
+            </h1>
             <div className="title-underline" />
-            <p className="event-description">{event.description || "No description provided."}</p>
+            <p className="event-description">
+              {event.description || "No description provided."}
+            </p>
 
             {organizer && (
               <div className="event-organizer-info">
@@ -162,8 +174,7 @@ const EventInfoPage = () => {
             <div className="button-group">
               <button className="event-btn" onClick={() => navigate(-1)}>Back</button>
               <button className="event-btn" onClick={() => navigate(`/add-feedback/${date}`)}>Add Feedback</button>
-              <button className="event-btn" onClick={() => {  navigator.clipboard.writeText(window.location.href);  alert("📎 Link copied to clipboard!");  }}>Share Event</button>
-              <button className="event-btn" onClick={() => setShowReminder(true)}>Remind Me</button>
+              <button className="event-btn" onClick={() => { navigator.clipboard.writeText(window.location.href); alert("📎 Link copied to clipboard!"); }}>Share Event</button>
             </div>
           </motion.div>
         ) : (
@@ -178,24 +189,24 @@ const EventInfoPage = () => {
         )}
       </main>
 
-      {showReminder && (
-        <div className="reminder-modal">
-          <div className="reminder-box">
-            <h3>Remind Me About This Event</h3>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-            />
-            <div className="reminder-buttons">
-              <button onClick={handleReminderSubmit}>Set Reminder</button>
-              <button onClick={() => setShowReminder(false)}>Cancel</button>
-            </div>
-            {reminderStatus && <p className="reminder-status">{reminderStatus}</p>}
-          </div>
-        </div>
-      )}
+      {userChecked ? (
+  user ? (
+    isRegistered ? (
+      <p className="event-btn registered-message">
+        ✅ You are already registered for this event.
+      </p>
+    ) : (
+      <button className="event-btn" onClick={handleRegister}>
+        Register for This Event
+      </button>
+    )
+  ) : (
+    <p className="event-btn warning-message">
+      ❌ Please sign in to register for this event.
+    </p>
+  )
+) : null}
+
     </div>
   );
 };

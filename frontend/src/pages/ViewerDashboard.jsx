@@ -1,53 +1,55 @@
- import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./ViewerDashboard.css";
-import { db } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  query,
+  where
+} from "firebase/firestore";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
+import myevents from "../assets/view-requests.png";
+import logoutIcon from "../assets/logout.png";
 
 const ViewerDashboard = () => {
   const [date, setDate] = useState(new Date());
   const [events, setEvents] = useState({});
+  const [hoveredEvent, setHoveredEvent] = useState(null);
+  const [hoverPosition, setHoverPosition] = useState({ top: 0, left: 0 });
+  const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const navigate = useNavigate();
 
-  //  Fetch approved events from Firestore
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        console.log("🔍 Fetching approved events...");
-
         const eventsCollection = collection(db, "events");
         const approvedQuery = query(eventsCollection, where("status", "==", "Approved"));
 
         const querySnapshot = await getDocs(approvedQuery);
-        if (querySnapshot.empty) {
-          console.warn("⚠️ No approved events found.");
-        }
 
         const eventList = {};
         querySnapshot.forEach((doc) => {
           const eventData = doc.data();
-          console.log("📌 Firestore Event Data:", eventData);
-
-          // Use eventDate instead of date
           if (eventData.eventDate) {
-            const formattedDate = eventData.eventDate; // Firestore stores it as "YYYY-MM-DD"
+            const formattedDate = eventData.eventDate;
             eventList[formattedDate] = {
               name: eventData.eventName || "Unnamed Event",
               description: eventData.description || "No description provided",
+              whyAttend: eventData.whyAttend || "No reason provided",
+              guests: eventData.guests || "No guests listed",
             };
-          } else {
-            console.warn("⚠️ Skipping event with missing eventDate:", eventData);
           }
         });
 
         setEvents(eventList);
-        console.log("✅ Approved Events Fetched:", eventList);
       } catch (error) {
         console.error("❌ Error fetching approved events:", error);
       }
@@ -56,30 +58,65 @@ const ViewerDashboard = () => {
     fetchEvents();
   }, []);
 
-  //  Fix: Ensure date format consistency
-  const formatDate = (date) => date.toISOString().split("T")[0]; // Ensure "YYYY-MM-DD" format
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  // Assign CSS classes based on event presence
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
   const tileClassName = ({ date }) => {
     const formattedDate = formatDate(date);
     return events[formattedDate] ? "event-day" : "";
   };
 
-  //  Debugging: Log calendar tile checks
   const tileContent = ({ date }) => {
     const formattedDate = formatDate(date);
-    console.log("📅 Checking date:", formattedDate, " → Event exists?", events[formattedDate]);
+    const event = events[formattedDate];
 
-    return events[formattedDate] ? (
-      <div className="event-marker">📍 {events[formattedDate].name}</div>
-    ) : null;
+    if (!event) return null;
+
+    const handleMouseEnter = (e) => {
+      const rect = e.target.getBoundingClientRect();
+      setHoveredEvent(event);
+      setHoverPosition({
+        top: rect.top + window.scrollY - 130,
+        left: rect.left + rect.width / 2,
+      });
+    };
+
+    const handleMouseLeave = () => {
+      setHoveredEvent(null);
+    };
+
+    return (
+      <div
+        className="event-marker"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        📍 {event.name}
+      </div>
+    );
   };
 
-  // Handle clicking on a date with an event
   const handleDateClick = (value) => {
     const formattedDate = formatDate(value);
     if (events[formattedDate]) {
-navigate(`/EventInfo/${formattedDate}`);
+      navigate(`/EventInfo/${formattedDate}`);
     }
   };
 
@@ -88,13 +125,32 @@ navigate(`/EventInfo/${formattedDate}`);
       <Background />
 
       <Header
-        showAboutUs={false}
-        extraRightContent={
-          <Link to="/">
-            <img src={home} alt="Home" className="home-img" />
-          </Link>
-        }
-      />
+  showAboutUs={false}
+  extraRightContent={
+    <div className="header-icons">
+      {authChecked && user ? (
+        <>
+          <img
+            src={myevents}
+            alt="My Events"
+            className="header-icon"
+            onClick={() => navigate(`/MyEvents/${user.uid}`)}
+          />
+          
+          <img
+            src={logoutIcon}
+            alt="Logout"
+            className="header-icon"
+            onClick={handleLogout}
+          />
+        </>
+      ) : null}
+      <Link to="/">
+        <img src={home} alt="Home" className="home-img" />
+      </Link>
+    </div>
+  }
+/>
 
       <main className="viewer-content">
         <motion.h1
@@ -116,10 +172,25 @@ navigate(`/EventInfo/${formattedDate}`);
             onChange={setDate}
             value={date}
             onClickDay={handleDateClick}
-            tileClassName={tileClassName} 
+            tileClassName={tileClassName}
             tileContent={tileContent}
           />
         </motion.div>
+
+        {hoveredEvent && (
+          <div
+            className="floating-event-card"
+            style={{
+              top: `${hoverPosition.top}px`,
+              left: `${hoverPosition.left}px`,
+            }}
+          >
+            <strong>Why Attend:</strong>
+            <p>{hoveredEvent.whyAttend}</p>
+            <strong>Guests:</strong>
+            <p>{hoveredEvent.guests}</p>
+          </div>
+        )}
       </main>
     </div>
   );
