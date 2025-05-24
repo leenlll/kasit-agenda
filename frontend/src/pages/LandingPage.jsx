@@ -8,9 +8,9 @@ import admin from '../assets/admin.png';
 import student from '../assets/studenticon.png';
 
 const LandingPage = () => {
-  const goToViewOnly = () => {
-    window.location.href = '/ViewerDashboard';
-  };
+  // const goToViewOnly = () => {
+  //   window.location.href = '/ViewerDashboard';
+  // };
 
   const goToBooking = () => {
     window.location.href = '/organizer-signin';
@@ -68,13 +68,13 @@ const goToStudents = () => {
   </div>
   
 
-  <div className="button-card" onClick={goToViewOnly}>
+  {/* <div className="button-card" onClick={goToViewOnly}>
     <div className="card-content">
       <img src={view} alt="View Only" className="card-image" />
       <h4 className="card-title">View Only</h4> 
     </div>
     <div className="hover-description">Check out the latest events!</div>
-  </div>
+  </div> */}
 
 </div>
 
