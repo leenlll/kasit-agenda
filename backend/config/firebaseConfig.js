@@ -1,8 +1,8 @@
 const admin = require('firebase-admin');
 const path = require('path');
-require('dotenv').config(); // Load variables from .env file
+require('dotenv').config(); 
 
-// Local or deployment path from .env, or fallback
+
 const serviceAccountPath = process.env.FIREBASE_KEY_PATH || './config/serviceAccountKey.json';
 
 const serviceAccount = require(path.resolve(serviceAccountPath));

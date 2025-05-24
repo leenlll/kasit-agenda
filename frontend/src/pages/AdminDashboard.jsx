@@ -24,9 +24,8 @@ import "./AdminDashboard.css";
 const AdminDashboard = () => {
   const [events, setEvents] = useState([]);
   const fetchCalled = useRef(false);
-  const navigate = useNavigate(); // ✅ needed for redirect after logout
+  const navigate = useNavigate();
 
-  // ✅ Logout function
   const handleLogout = async () => {
     const confirm = window.confirm("Are you sure you want to log out?");
     if (!confirm) return;
@@ -39,7 +38,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ Fetch event requests from bookings and events
+  
   useEffect(() => {
     if (fetchCalled.current) return;
     fetchCalled.current = true;
@@ -48,14 +47,14 @@ const AdminDashboard = () => {
       try {
         console.log("🔍 Fetching all event requests...");
 
-        // Bookings (Pending/Denied)
+        
         const bookingsSnapshot = await getDocs(collection(db, "bookings"));
         const bookingsList = bookingsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        // Events (Approved)
+       
         const eventsQuery = query(
           collection(db, "events"),
           where("status", "in", ["Approved", "approved"])
@@ -66,7 +65,7 @@ const AdminDashboard = () => {
           ...doc.data(),
         }));
 
-        // Merge results
+        
         const allRequests = [...bookingsList, ...eventsList];
         console.log("✅ Fetched event requests:", allRequests);
         setEvents(allRequests);
@@ -78,7 +77,7 @@ const AdminDashboard = () => {
     fetchEvents();
   }, []);
 
-  // ✅ Handle approval/denial
+  
   const handleStatusUpdate = async (eventId, newStatus, organizerEmail, eventName) => {
     try {
       console.log(`🛠 Updating ${eventId} to ${newStatus}...`);
@@ -115,7 +114,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ Notify via email
+  
   const sendStatusEmail = async (organizerEmail, eventName, status) => {
     try {
       console.log(`📩 Emailing ${organizerEmail} - ${status}`);

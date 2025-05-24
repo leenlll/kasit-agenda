@@ -28,7 +28,7 @@ const AdminLogs = () => {
         let organizerEmail = data.organizerEmail || "N/A";
         let registeredStudents = [];
 
-        // Get full organizer name and email
+        
         if (data.organizerId) {
           const orgSnap = await getDoc(doc(db, "organizers", data.organizerId));
           if (orgSnap.exists()) {
@@ -38,7 +38,7 @@ const AdminLogs = () => {
           }
         }
 
-        // Check for registered students
+        
         studentsSnapshot.forEach((studentDoc) => {
           const studentData = studentDoc.data();
           const registeredEvents = studentData.registeredEvents || [];

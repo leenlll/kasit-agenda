@@ -2,18 +2,17 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 
-//  Load Gmail credentials from Firebase config
+
 const gmailEmail = functions.config().gmail.email;
 const gmailPass = functions.config().gmail.password;
 const adminEmail = "leenanghami@gmail.com";
 
-//  Initialize Firebase Admin
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 const db = admin.firestore();
 
-//  Set up Nodemailer
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -22,7 +21,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 📬 HTTP FUNCTION: Send Booking Confirmation Emails
+
 exports.bookEvent = functions.https.onRequest(async (req, res) => {
   const {
     organizerEmail,
@@ -56,7 +55,7 @@ We’ll notify you once it’s reviewed.
   `;
 
   try {
-    // Send to admin
+    
     await transporter.sendMail({
       from: `"Kasit Agenda" <${gmailEmail}>`,
       to: adminEmail,
@@ -64,7 +63,7 @@ We’ll notify you once it’s reviewed.
       text: messageToAdmin,
     });
 
-    // Send to organizer
+    
     await transporter.sendMail({
       from: `"Kasit Agenda" <${gmailEmail}>`,
       to: organizerEmail,
@@ -80,7 +79,7 @@ We’ll notify you once it’s reviewed.
   }
 });
 
-// 🔔 SCHEDULED FUNCTION: Daily Reminder for Tomorrow
+
 exports.sendReminders = functions.pubsub
   .schedule("every day 08:00")
   .timeZone("Asia/Amman")

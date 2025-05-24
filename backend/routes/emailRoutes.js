@@ -3,7 +3,7 @@ const { sendEmail } = require("../services/emailService");
 const router = express.Router();
 const db = require("../config/firebaseConfig"); 
 
-//  ROUTE 1 Send Email POST
+
 router.post("/send-email", async (req, res) => {
   const { recipient, subject, message } = req.body;
 
@@ -30,7 +30,7 @@ router.post("/send-email", async (req, res) => {
 });
 
 
-//  ROUTE 2: Reminder Emails for Tomorrow's Events GET
+
 router.get("/send-reminders", async (req, res) => {
   const now = new Date();
 

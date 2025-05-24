@@ -1,4 +1,4 @@
-/* View Requests Page Styles */
+
 .view-requests-page {
   position: relative;
   width: 100%;
@@ -9,7 +9,7 @@
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  padding-top: 110px; /* Space for fixed header */
+  padding-top: 110px; 
 }
 
 .requests-content {
@@ -47,7 +47,7 @@
   color: white;
 }
 
-/* Status Colors */
+
 .status-pending {
   color: #ff9800;
   font-weight: bold;
@@ -130,7 +130,7 @@
   height: 30px;
 }
 
-/* Registered Student Modal Styles */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -182,7 +182,7 @@
 }
 
 
-/* Registered List fallback (if modal is not used) */
+
 .registered-list {
   margin-top: 6px;
   font-size: 0.85rem;

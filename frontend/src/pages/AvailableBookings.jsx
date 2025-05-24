@@ -31,13 +31,12 @@ const AvailableBookings = () => {
   };
   
 
-  // ✅ Fetch booked dates from Firestore
+ 
   useEffect(() => {
     const fetchBookedDates = async () => {
       try {
         console.log("🔍 Fetching booked dates from Firestore...");
 
-        // ✅ Fetch all events where `status` is "Approved"
         const eventsCollection = collection(db, "events");
         const bookedQuery = query(eventsCollection, where("status", "==", "Approved"));
 
@@ -46,16 +45,16 @@ const AvailableBookings = () => {
 
         querySnapshot.forEach((doc) => {
           const eventData = doc.data();
-          console.log("📌 Fetched Event:", eventData); // ✅ Log each event
+          console.log("📌 Fetched Event:", eventData); 
 
           if (!eventData.eventDate) {
             console.warn(`⚠️ Skipping event with missing date:`, eventData);
-            return; // ✅ Skip events without a valid date
+            return; 
           }
 
           let eventDate;
 
-          // ✅ Convert Firestore Timestamp or String Date
+          
           if (eventData.eventDate.toDate) {
             eventDate = eventData.eventDate.toDate();
           } else {
@@ -79,14 +78,14 @@ const AvailableBookings = () => {
     fetchBookedDates();
   }, []);
 
-  // ✅ Assign CSS Classes Based on Availability
+  
   const tileClassName = ({ date }) => {
     const formattedDate = date.toISOString().split("T")[0];
-    if (bookedDates.includes(formattedDate)) return "booked-day"; // Red for booked
-    return "available-day"; // Green for available
+    if (bookedDates.includes(formattedDate)) return "booked-day"; 
+    return "available-day"; 
   };
 
-  // ✅ Disable Clicking on Booked Days
+
   const handleDateClick = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
     if (bookedDates.includes(formattedDate)) return;

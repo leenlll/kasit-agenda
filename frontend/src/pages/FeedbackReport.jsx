@@ -127,7 +127,7 @@ const FeedbackReport = () => {
     const input = reportRef.current;
     const buttons = document.querySelectorAll(".no-print");
 
-    // Hide buttons
+    
     buttons.forEach((el) => (el.style.display = "none"));
 
     html2canvas(input, { scale: 2 }).then((canvas) => {

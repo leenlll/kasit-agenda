@@ -30,7 +30,7 @@ const AddFeedback = () => {
     trainingSuggestions: "",
   });
 
-  // ✅ Fetch Event Name from Firestore
+ 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -113,7 +113,7 @@ const AddFeedback = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* ✅ These now all have 5 radio options */}
+                
                 {[
                   { name: "usefulness", label: "Was the event useful for you?" },
                   { name: "participationAgain", label: "Would you participate in such an event again?" },
@@ -130,7 +130,7 @@ const AddFeedback = () => {
                   </tr>
                 ))}
 
-                {/* ✅ Other Yes/No questions */}
+               
                 <tr>
                   <td>Do you prefer curricular or extracurricular activities?</td>
                   <td colSpan="2">

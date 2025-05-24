@@ -2,13 +2,13 @@ const express = require("express");
 const { sendEmail } = require("../services/emailService"); 
 const router = express.Router();
 
-// Route: Organizer Books an Event/Notify Admins
+
 router.post("/book-event", async (req, res) => {
   console.log("📩 Organizer requested to book an event:", req.body);
 
   const { organizerEmail, organizerName, eventName, eventDate, timeFrom, timeTo, location, description } = req.body;
 
-  //  Validate required fields
+
   if (!organizerEmail || !eventName || !eventDate || !timeFrom || !timeTo || !location || !description) {
     console.error("❌ Missing booking details:", { organizerEmail, eventName, eventDate, timeFrom, timeTo, location, description });
     return res.status(400).json({ success: false, message: "Missing booking details." });
@@ -17,7 +17,7 @@ router.post("/book-event", async (req, res) => {
   try {
     console.log("📤 Sending email to admins...");
     const adminEmails = ["leenanghami@gmail.com"]; 
-    // Send email to all admins 
+   
 const emailPromises = adminEmails.map(async (admin) => {
 
     const subject = `📢 New Booking Request: ${eventName} on ${eventDate}`;
@@ -52,7 +52,7 @@ await sendEmail(admin, subject, message);
 
     await Promise.all(emailPromises);
    
-    //Send confirmation to organizer
+   
   const organizerSubject = ` Your Booking Request for "${eventName}" was Received`;
 
 const organizerMessage = `

@@ -61,7 +61,7 @@ const EditOrganizerProfile = () => {
 
   const handleSave = async () => {
     try {
-      await handleReauthentication(); // secure update
+      await handleReauthentication(); 
 
       const userDoc = doc(db, "organizers", user.uid);
       await updateDoc(userDoc, formData);
