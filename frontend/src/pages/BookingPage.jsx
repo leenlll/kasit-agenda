@@ -216,13 +216,6 @@ const BookingPage = () => {
             <label>Why Should Students Attend?</label>
             <textarea name="whyAttend" onChange={handleChange} />
 
-             <label>Max number of attendees:</label>
-             <select name="location" onChange={handleChange} >
-              <option value="">Select Number</option>
-              <option value="1-40">1-40 Lecture halls</option>
-              <option value="101">40-400 Al-Louzy Auditorium</option>
-              </select>
-
             <div className="button-group">
               <button type="button" onClick={() => navigate(-1)}>Back</button>
               <button type="submit">Submit</button>
