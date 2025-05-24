@@ -216,10 +216,9 @@ const BookingPage = () => {
             <label>Why Should Students Attend?</label>
             <textarea name="whyAttend" onChange={handleChange} />
 
-            <div className="button-group">
-              <button type="button" onClick={() => navigate(-1)}>Back</button>
-              <button type="submit">Submit</button>
-            </div>
+            <button type="button" className="go-back-btn" onClick={() => navigate(-1)}>Back</button>
+            <button type="submit" className="submit-button">Submit</button>
+
           </motion.form>
         </motion.div>
       </div>

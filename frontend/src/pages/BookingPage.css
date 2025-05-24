@@ -110,35 +110,19 @@ Modified Time Inputs
     font-size: 1rem;
 }
 
-   
-.submit-button, 
+.submit-button,
 .go-back-btn {
-    width: 100%;
-    max-width: 220px;
-    padding: 12px;
-    border: 2px solid #3e3ea6;
-    border-radius: 8px;
-    font-weight: normal;
-    background: #3e3ea6;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    text-align: center;
-    display: inline-block;
-    font-size: 1rem;
+  background: #3e3ea6;
+  border: 2px solid #3e3ea6;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin: 10px;
 }
 
-.submit-button:hover, 
-.go-back-btn:hover {
-    background: #5151b3;
-}
-
-.go-back-btn {
-    background: #2c2c85;
-    border: 2px solid #3e3ea6;
-    margin-top: 0px;
-    font-weight: normal;
-}
 
 .header-icons {
     display: flex;
@@ -158,6 +142,7 @@ Modified Time Inputs
 .home-img:hover {
     transform: scale(1.1);
 }
+
 
 @media (max-width: 768px) {
     .booking-form {
