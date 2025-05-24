@@ -20,6 +20,7 @@ import FeedbackReport from './pages/FeedbackReport';
 import EditOrganizerProfile from "./pages/EditOrganizerProfile";
 import StudentSignIn from './pages/StudentSignIn';
 import MyEvents from "./pages/MyEvents";
+import AdminLogs from "./pages/AdminLogs";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="/StudentSignIn" element={<StudentSignIn />} />
         <Route path="/viewer-dashboard" element={<ViewerDashboard />} />
         <Route path="/my-events" element={<MyEvents />} />
+<Route path="/admin-logs" element={<AdminLogs />} />
 
 
         </Routes>
