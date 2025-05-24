@@ -17,7 +17,7 @@ import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import { signOut } from "firebase/auth";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+//import "jspdf-autotable";
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
