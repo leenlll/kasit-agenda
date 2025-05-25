@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { db, auth } from "../firebaseConfig";
-import { updateDoc, arrayUnion, collection, query, where, getDocs, doc, getDoc,} from "firebase/firestore";
+import { updateDoc, setDoc, arrayUnion, collection, query, where, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { FaClock, FaMapMarkerAlt, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import "./EventInfo.css";
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
+import myevents from "../assets/view-requests.png";
+import logoutIcon from "../assets/logout.png";
 
 const EventInfoPage = () => {
 
@@ -40,8 +42,10 @@ const EventInfoPage = () => {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const eventData = querySnapshot.docs[0].data();
-          setEvent(eventData);
+          const eventDoc = querySnapshot.docs[0];
+const eventData = { id: eventDoc.id, ...eventDoc.data() };
+setEvent(eventData);
+
 
           const organizerId = eventData.organizerId;
           if (organizerId) {
@@ -86,36 +90,85 @@ const EventInfoPage = () => {
     checkRegistration();
   }, [user, event]);
 
-  const handleRegister = async () => {
-    if (!user || !event) {
-      alert("❌ You must be signed in to register.");
-      return;
+ const handleRegister = async () => {
+  if (!user || !event) {
+    alert("❌ You must be signed in to register.");
+    return;
+  }
+
+  try {
+    const studentRef = doc(db, "students", user.uid);
+await setDoc(studentRef, {
+  registeredEvents: arrayUnion(`${event.eventName} - ${date}`),
+}, { merge: true });
+
+    if (event.id) {
+      const eventRef = doc(db, "events", event.id);
+      await updateDoc(eventRef, {
+        registeredStudents: arrayUnion({
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+        }),
+      });
+
+      await addDoc(collection(db, "registrations"), {
+        eventId: event.id,
+        studentName: user.displayName || user.email.split("@")[0],         email: user.email,
+      });
     }
 
-    try {
-      const studentRef = doc(db, "students", user.uid);
-      await updateDoc(studentRef, {
-        registeredEvents: arrayUnion(`${event.eventName} - ${date}`),
-      });
-      setIsRegistered(true);
-      alert("✅ You are now registered for this event.");
-    } catch (error) {
-      console.error("❌ Registration error:", error);
-      alert("Something went wrong.");
-    }
-  };
+    setIsRegistered(true);
+    alert("✅ You are now registered for this event.");
+  } catch (error) {
+    console.error("❌ Registration error:", error);
+    alert("Something went wrong.");
+  }
+};
+const handleLogout = async () => {
+  const confirm = window.confirm("Are you sure you want to log out?");
+  if (!confirm) return;
+
+  try {
+    await signOut(auth);
+    navigate("/");
+  } catch (error) {
+    console.error("❌ Logout failed:", error);
+  }
+};
+
 
   return (
     <div className="event-page">
       <Background />
-      <Header
-        showAboutUs={false}
-        extraRightContent={
-          <Link to="/">
-            <img src={home} alt="Home" className="home-img" />
-          </Link>
-        }
-      />
+<Header
+  showAboutUs={false}
+  extraRightContent={
+    <div className="header-icons">
+      {userChecked && user ? (
+        <>
+          <img
+            src={myevents}
+            alt="My Events"
+            className="header-icon"
+            onClick={() => navigate("/MyEvents")}
+          />
+          <img
+            src={logoutIcon}
+            alt="Logout"
+            className="header-icon"
+            onClick={handleLogout}
+          />
+        </>
+      ) : null}
+      <Link to="/">
+        <img src={home} alt="Home" className="home-img" />
+      </Link>
+    </div>
+  }
+/>
+
+
 
       {event && (
         <motion.div
@@ -166,9 +219,7 @@ const EventInfoPage = () => {
               {event.resources && (
                 <p><strong>Resources:</strong> {event.resources}</p>
               )}
-              {event.id && (
-                <p><strong>Event ID:</strong> {event.id}</p>
-              )}
+             
             </div>
 
             <div className="button-group">

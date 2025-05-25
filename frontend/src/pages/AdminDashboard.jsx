@@ -2,31 +2,27 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { db, auth } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  doc,
-  query,
-  where,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
+import {  collection,  getDocs,  updateDoc,  doc,  query,  where,  getDoc,  setDoc,} from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import axios from "axios";
-
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
 import logoutIcon from "../assets/logout.png";
+import logIcon from "../assets/log.png";
 import "./AdminDashboard.css";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AdminDashboard = () => {
   const [events, setEvents] = useState([]);
+  const [registrationsMap, setRegistrationsMap] = useState({});
+  const [selectedEventStudents, setSelectedEventStudents] = useState([]);
+  const [selectedEventInfo, setSelectedEventInfo] = useState({});
+  const [showModal, setShowModal] = useState(false);
   const fetchCalled = useRef(false);
-  const navigate = useNavigate(); // ✅ needed for redirect after logout
+  const navigate = useNavigate();
 
-  // ✅ Logout function
   const handleLogout = async () => {
     const confirm = window.confirm("Are you sure you want to log out?");
     if (!confirm) return;
@@ -39,23 +35,18 @@ const AdminDashboard = () => {
     }
   };
 
-  // ✅ Fetch event requests from bookings and events
   useEffect(() => {
     if (fetchCalled.current) return;
     fetchCalled.current = true;
 
     const fetchEvents = async () => {
       try {
-        console.log("🔍 Fetching all event requests...");
-
-        // Bookings (Pending/Denied)
         const bookingsSnapshot = await getDocs(collection(db, "bookings"));
         const bookingsList = bookingsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        // Events (Approved)
         const eventsQuery = query(
           collection(db, "events"),
           where("status", "in", ["Approved", "approved"])
@@ -66,22 +57,32 @@ const AdminDashboard = () => {
           ...doc.data(),
         }));
 
-        // Merge results
         const allRequests = [...bookingsList, ...eventsList];
-        console.log("✅ Fetched event requests:", allRequests);
         setEvents(allRequests);
+
+        const regsSnapshot = await getDocs(collection(db, "registrations"));
+        const regsMap = {};
+
+        regsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const { eventId, studentName, email } = data;
+          if (!regsMap[eventId]) {
+            regsMap[eventId] = [];
+          }
+          regsMap[eventId].push({ studentName, email });
+        });
+
+        setRegistrationsMap(regsMap);
       } catch (error) {
-        console.error("❌ Error fetching events:", error);
+        console.error("❌ Error fetching events or registrations:", error);
       }
     };
 
     fetchEvents();
   }, []);
 
-  // ✅ Handle approval/denial
   const handleStatusUpdate = async (eventId, newStatus, organizerEmail, eventName) => {
     try {
-      console.log(`🛠 Updating ${eventId} to ${newStatus}...`);
       const eventRef = doc(db, "bookings", eventId);
       const eventDoc = await getDoc(eventRef);
 
@@ -98,7 +99,6 @@ const AdminDashboard = () => {
           ...eventData,
           status: "Approved",
         });
-        console.log(`✅ Event ${eventId} moved to 'events'`);
       }
 
       await updateDoc(eventRef, { status: newStatus });
@@ -109,17 +109,43 @@ const AdminDashboard = () => {
           event.id === eventId ? { ...event, status: newStatus } : event
         )
       );
-      console.log(`✅ Status updated to ${newStatus}`);
     } catch (error) {
       console.error(`❌ Error updating status:`, error);
     }
   };
+const handleExportPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.text("Registered Students", 14, 22);
 
-  // ✅ Notify via email
+  const tableData = selectedEventStudents.map((student, index) => [
+    index + 1,
+    student.studentName,
+    student.email,
+  ]);
+
+autoTable(doc, {
+  head: [["#", "Student Name", "Email"]],
+  body: tableData,
+  startY: 30,
+  styles: { fontSize: 11 },
+  headStyles: { fillColor: [62, 62, 166] },
+});
+
+
+  const clean = (str) =>
+    str?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+
+  const filename = selectedEventInfo.eventName
+    ? `students_${clean(selectedEventInfo.eventName)}_${selectedEventInfo.eventDate}.pdf`
+    : "registered_students.pdf";
+
+  doc.save(filename);
+};
+
   const sendStatusEmail = async (organizerEmail, eventName, status) => {
     try {
-      console.log(`📩 Emailing ${organizerEmail} - ${status}`);
-const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update-booking-status", {
+      const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update-booking-status", {
         organizerEmail,
         eventName,
         status,
@@ -129,6 +155,9 @@ const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update
       console.error("❌ Email error:", error.response ? error.response.data : error);
     }
   };
+const handleLog = () => {
+  navigate("/admin-logs");
+};
 
   return (
     <div className="admin-page">
@@ -137,6 +166,13 @@ const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update
         showAboutUs={false}
         extraRightContent={
           <div className="header-icons">
+            <img
+              src={logIcon}
+              alt="Log"
+              className="log-img"
+              onClick={handleLog}
+              style={{ cursor: "pointer" }}
+            />
             <img
               src={logoutIcon}
               alt="Logout"
@@ -213,7 +249,22 @@ const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update
                           </button>
                         </div>
                       ) : (
-                        <span className="status-info">{event.status}</span>
+                        <>
+<button
+  className="report-btn"
+  onClick={() => {
+    setSelectedEventStudents(registrationsMap[event.id] || []);
+    setSelectedEventInfo({
+      eventName: event.eventName,
+      eventDate: event.eventDate || event.date,
+    });
+    setShowModal(true);
+  }}
+>
+  View Registered Students
+</button>
+                           
+                        </>
                       )}
                     </td>
                   </tr>
@@ -226,6 +277,34 @@ const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update
             </tbody>
           </table>
         </div>
+
+        {/* Modal */}
+        {showModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+  <h3>Registered Students</h3>
+  {selectedEventStudents.length > 0 ? (
+    <ul>
+      {selectedEventStudents.map((student, index) => (
+        <li key={index}>
+          {student.studentName} ({student.email})
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>No students registered for this event.</p>
+  )}
+  <div className="modal-buttons">
+    <button className="close-modal-btn" onClick={handleExportPDF}>
+      Download as PDF
+    </button>
+    <button className="close-modal-btn" onClick={() => setShowModal(false)}>
+      Close
+    </button>
+  </div>
+</div>
+          </div>
+        )}
       </main>
     </div>
   );

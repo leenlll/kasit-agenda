@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, getDoc, doc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { db, auth } from "../firebaseConfig";
+import { useNavigate, Link } from "react-router-dom";
 import Background from "../components/Background";
 import Header from "../components/Header";
-import home from "../assets/home.png";
 import "./AdminLogs.css";
+
+// Icons
+import profileIcon from "../assets/profile.png";
+import logoutIcon from "../assets/logout.png";
+import homeIcon from "../assets/home.png";
+import viewRequestsIcon from "../assets/view-requests.png";
 
 const AdminLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -13,59 +20,92 @@ const AdminLogs = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
+
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchLogs = async () => {
-      const eventsSnapshot = await getDocs(collection(db, "events"));
-      const studentsSnapshot = await getDocs(collection(db, "students"));
-      const logsData = [];
-
-      for (const eventDoc of eventsSnapshot.docs) {
-        const data = eventDoc.data();
-        const eventName = data.eventName || "Untitled";
-        const eventDate = data.eventDate || "Unknown";
-        const eventKey = `${eventName} - ${eventDate}`;
-        let organizerName = data.organizer || "Unknown";
-        let organizerEmail = data.organizerEmail || "N/A";
-        let registeredStudents = [];
-
-        // Get full organizer name and email
-        if (data.organizerId) {
-          const orgSnap = await getDoc(doc(db, "organizers", data.organizerId));
-          if (orgSnap.exists()) {
-            const orgData = orgSnap.data();
-            organizerName = `${orgData.firstName} ${orgData.lastName}`;
-            organizerEmail = orgData.email || organizerEmail;
-          }
-        }
-
-        // Check for registered students
-        studentsSnapshot.forEach((studentDoc) => {
-          const studentData = studentDoc.data();
-          const registeredEvents = studentData.registeredEvents || [];
-          if (Array.isArray(registeredEvents) && registeredEvents.includes(eventKey)) {
-            registeredStudents.push(studentData.name);
-          }
-        });
-
-        logsData.push({
-          id: eventDoc.id,
-          eventName,
-          eventDate,
-          status: data.status || "Unknown",
-          organizerName,
-          organizerEmail,
-          time: `${data.timeFrom || ""} - ${data.timeTo || ""}`,
-          location: data.location || "",
-          timestamp: data.timestamp?.toDate() || new Date(),
-          registeredStudents,
-        });
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        console.error("❌ You are NOT logged in.");
+        return;
       }
 
-      logsData.sort((a, b) => b.timestamp - a.timestamp);
-      setLogs(logsData);
-    };
+      const adminRef = doc(db, "admins", user.uid);
+      const adminSnap = await getDoc(adminRef);
 
-    fetchLogs();
+      if (!adminSnap.exists()) {
+        console.error("❌ This UID is NOT in the admins collection.");
+        return;
+      }
+
+      try {
+        const bookingsSnapshot = await getDocs(collection(db, "bookings"));
+        const studentsSnapshot = await getDocs(collection(db, "students"));
+        const logsData = [];
+
+        for (const eventDoc of bookingsSnapshot.docs) {
+          const data = eventDoc.data();
+          const eventName = data.eventName || "Untitled";
+          const eventDate = data.eventDate || "Unknown";
+          const eventKey = `${eventName} - ${eventDate}`;
+          const organizerName = data.organizer || "Unknown";
+          const organizerEmail = data.organizerEmail || "N/A";
+          const location = data.location || "N/A";
+          const time = `${data.timeFrom || ""} - ${data.timeTo || ""}`;
+          const status = data.status || "Unknown";
+let timestamp;
+if (data.eventDate && data.timeFrom) {
+  const timestampStr = `${data.eventDate}T${data.timeFrom}:00`;
+  timestamp = new Date(timestampStr);
+} else {
+  timestamp = new Date();
+}
+
+          const registeredStudents = [];
+
+          studentsSnapshot.forEach((studentDoc) => {
+            const studentData = studentDoc.data();
+            const registeredEvents = studentData.registeredEvents || [];
+            if (
+              Array.isArray(registeredEvents) &&
+              registeredEvents.includes(eventKey)
+            ) {
+              const fallbackName =
+                studentData.name || studentData.displayName || studentData.email || "Unknown Student";
+              registeredStudents.push(fallbackName);
+            }
+          });
+
+          logsData.push({
+            eventName,
+            eventDate,
+            status,
+            organizerName,
+            organizerEmail,
+            time,
+            location,
+            registeredStudents,
+            timestamp,
+          });
+        }
+
+        logsData.sort((a, b) => b.timestamp - a.timestamp);
+        setLogs(logsData);
+      } catch (err) {
+        console.error("❌ Firestore fetch error:", err.message);
+      }
+    });
   }, []);
 
   const filteredLogs = logs.filter((log) => {
@@ -74,15 +114,16 @@ const AdminLogs = () => {
       log.organizerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.status.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === "All" || log.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "All" || log.status === statusFilter;
 
-    const eventDate = new Date(log.eventDate);
+    const logDate = new Date(log.eventDate);
     const fromDate = dateFrom ? new Date(dateFrom) : null;
     const toDate = dateTo ? new Date(dateTo) : null;
 
     const matchesDate =
-      (!fromDate || eventDate >= fromDate) &&
-      (!toDate || eventDate <= toDate);
+      (!fromDate || logDate >= fromDate) &&
+      (!toDate || logDate <= toDate);
 
     return matchesSearch && matchesStatus && matchesDate;
   });
@@ -90,35 +131,53 @@ const AdminLogs = () => {
   return (
     <div className="admin-logs-wrapper">
       <Background />
-      <Header />
+      <Header
+        showAboutUs={false}
+        extraRightContent={
+          <div className="header-icons"> 
+          <img
+              src={logoutIcon}
+              alt="Logout"
+              className="logout-icon"
+              onClick={handleLogout}
+            />
+          <Link to="/">
+              <img src={homeIcon} alt="Home" className="home-img" />
+            </Link>
+          </div>
+        }
+      />
 
       <div className="admin-logs-page">
         <div className="logs-header">
-          <button className="back-btn" onClick={() => window.history.back()}>
-            Back
-          </button>
           <h2>Event Logs</h2>
         </div>
 
         <div className="filter-bar">
-          <input
-            className="search-bar"
-            type="text"
-            placeholder="Search by event, organizer, or status..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <label className="date-filter">
+            Search
+            <input
+              className="search-bar"
+              type="text"
+              placeholder="Search by event, or organizer"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </label>
 
-          <select
-            className="filter-dropdown"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All Statuses</option>
-            <option value="Approved">Approved</option>
-            <option value="Requested">Requested</option>
-            <option value="Denied">Denied</option>
-          </select>
+          <label className="date-filter">
+            Status
+            <select
+              className="filter-dropdown"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="All">All Statuses</option>
+              <option value="Approved">Approved</option>
+              <option value="Denied">Denied</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </label>
 
           <label className="date-filter">
             From:
@@ -154,32 +213,38 @@ const AdminLogs = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredLogs.map((log, index) => (
-              <tr key={index}>
-                <td>{log.eventName}</td>
-                <td>{log.eventDate}</td>
-                <td>{log.status}</td>
-                <td>{log.organizerName}</td>
-                <td>{log.organizerEmail}</td>
-                <td>{log.time}</td>
-                <td>{log.location}</td>
-                <td>
-                  {log.registeredStudents.length > 0 ? (
-                    <details>
-                      <summary>👁 {log.registeredStudents.length}</summary>
-                      <ul className="student-list">
-                        {log.registeredStudents.map((name, i) => (
-                          <li key={i}>{name}</li>
-                        ))}
-                      </ul>
-                    </details>
-                  ) : (
-                    <span>—</span>
-                  )}
-                </td>
-                <td>{log.timestamp.toLocaleString()}</td>
+            {filteredLogs.length > 0 ? (
+              filteredLogs.map((log, index) => (
+                <tr key={index}>
+                  <td>{log.eventName}</td>
+                  <td>{log.eventDate}</td>
+                  <td>{log.status}</td>
+                  <td>{log.organizerName}</td>
+                  <td>{log.organizerEmail}</td>
+                  <td>{log.time}</td>
+                  <td>{log.location}</td>
+                  <td>
+                    {log.registeredStudents.length > 0 ? (
+                      <details>
+                        <summary>👁 {log.registeredStudents.length}</summary>
+                        <ul className="student-list">
+                          {log.registeredStudents.map((name, i) => (
+                            <li key={i}>{name}</li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : (
+                      <span>—</span>
+                    )}
+                  </td>
+                  <td>{log.timestamp.toLocaleString()}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="9">No logs found.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

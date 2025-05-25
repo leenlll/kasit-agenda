@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  query,
-  where
-} from "firebase/firestore";
+import { collection, getDocs,  deleteDoc,  doc,  query,  where,} from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import "./ViewRequests.css";
 import Background from "../components/Background";
@@ -17,19 +10,19 @@ import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import { signOut } from "firebase/auth";
 import jsPDF from "jspdf";
-//import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
   const [registrationsMap, setRegistrationsMap] = useState({});
   const [selectedEventStudents, setSelectedEventStudents] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [selectedEventInfo, setSelectedEventInfo] = useState({});
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     const confirm = window.confirm("Are you sure you want to log out?");
     if (!confirm) return;
-
     try {
       await signOut(auth);
       navigate("/");
@@ -42,10 +35,7 @@ const ViewRequests = () => {
     const fetchRequests = async () => {
       try {
         const user = auth.currentUser;
-        if (!user) {
-          console.error("❌ No logged-in user!");
-          return;
-        }
+        if (!user) return;
 
         const bookingsQuery = query(
           collection(db, "bookings"),
@@ -73,18 +63,12 @@ const ViewRequests = () => {
 
         const regsSnapshot = await getDocs(collection(db, "registrations"));
         const regsMap = {};
-
         regsSnapshot.forEach((doc) => {
           const data = doc.data();
           const { eventId, studentName, email } = data;
-
-          if (!regsMap[eventId]) {
-            regsMap[eventId] = [];
-          }
-
+          if (!regsMap[eventId]) regsMap[eventId] = [];
           regsMap[eventId].push({ studentName, email });
         });
-
         setRegistrationsMap(regsMap);
       } catch (error) {
         console.error("❌ Error fetching event requests:", error);
@@ -94,21 +78,6 @@ const ViewRequests = () => {
     fetchRequests();
   }, []);
 
-  const handleCancelBooking = async (eventId) => {
-    try {
-      const confirmDelete = window.confirm("Are you sure you want to cancel this booking?");
-      if (!confirmDelete) return;
-
-      await deleteDoc(doc(db, "bookings", eventId));
-      setRequests((prev) => prev.filter((event) => event.id !== eventId));
-    } catch (error) {
-      console.error("❌ Error canceling booking:", error);
-    }
-  };
-
-  const handleGetFeedbackReport = (eventDate, eventName) => {
-    navigate(`/feedback-report/${eventDate}`, { state: { eventName } });
-  };
 const handleExportPDF = () => {
   const doc = new jsPDF();
   doc.setFontSize(18);
@@ -117,31 +86,27 @@ const handleExportPDF = () => {
   const tableData = selectedEventStudents.map((student, index) => [
     index + 1,
     student.studentName,
-    student.email
+    student.email,
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     head: [["#", "Student Name", "Email"]],
     body: tableData,
     startY: 30,
     styles: { fontSize: 11 },
-    headStyles: { fillColor: [62, 62, 166] }
+    headStyles: { fillColor: [62, 62, 166] },
   });
 
-  // Generate a clean filename
-  const cleanName = (name) =>
-    name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+  const clean = (str) =>
+    str?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 
-  const currentEvent = requests.find((e) =>
-    registrationsMap[e.id] === selectedEventStudents
-  );
-
-  const filename = currentEvent
-    ? `students_${cleanName(currentEvent.eventName)}_${currentEvent.eventDate}.pdf`
+  const filename = selectedEventInfo.eventName
+    ? `students_${clean(selectedEventInfo.eventName)}_${selectedEventInfo.eventDate}.pdf`
     : "registered_students.pdf";
 
   doc.save(filename);
 };
+
 
   return (
     <div className="view-requests-page">
@@ -189,16 +154,42 @@ const handleExportPDF = () => {
                   <td>
                     {event.status === "Pending" ? (
                       <>
-                        <button className="modify-btn" onClick={() => navigate(`/modify-request/${event.id}`)}>Modify</button>
-                        <button className="modify-btn" onClick={() => handleCancelBooking(event.id)}>Cancel</button>
+                        <button
+                          className="modify-btn"
+                          onClick={() => navigate(`/modify-request/${event.id}`)}
+                        >
+                          Modify
+                        </button>
+                        <button
+                          className="modify-btn"
+                          onClick={() => {
+                            if (window.confirm("Cancel this booking?")) {
+                              deleteDoc(doc(db, "bookings", event.id));
+                              setRequests((prev) =>
+                                prev.filter((e) => e.id !== event.id)
+                              );
+                            }
+                          }}
+                        >
+                          Cancel
+                        </button>
                       </>
                     ) : event.status === "Denied" ? (
-                      <button className="modify-btn" onClick={() => navigate(`/modify-request/${event.id}`)}>Resubmit</button>
+                      <button
+                        className="modify-btn"
+                        onClick={() => navigate(`/modify-request/${event.id}`)}
+                      >
+                        Resubmit
+                      </button>
                     ) : (
                       <>
                         <button
                           className="report-btn"
-                          onClick={() => handleGetFeedbackReport(event.eventDate, event.eventName)}
+                          onClick={() =>
+                            navigate(`/feedback-report/${event.eventDate}`, {
+                              state: { eventName: event.eventName },
+                            })
+                          }
                         >
                           Get Feedback Report
                         </button>
@@ -206,10 +197,14 @@ const handleExportPDF = () => {
                           className="report-btn"
                           onClick={() => {
                             setSelectedEventStudents(registrationsMap[event.id] || []);
+                            setSelectedEventInfo({
+                              eventName: event.eventName,
+                              eventDate: event.eventDate,
+                            });
                             setShowModal(true);
                           }}
                         >
-                        View Registered Students
+                          View Registered Students
                         </button>
                       </>
                     )}
@@ -224,7 +219,9 @@ const handleExportPDF = () => {
           </tbody>
         </table>
 
-        <Link to="/available-bookings" className="back-button">Back</Link>
+        <Link to="/available-bookings" className="back-button">
+          Back
+        </Link>
 
         {/* Modal */}
         {showModal && (
@@ -242,7 +239,15 @@ const handleExportPDF = () => {
               ) : (
                 <p>No students registered for this event.</p>
               )}
-              <button onClick={() => setShowModal(false)} className="close-modal-btn">Close</button>
+              <div className="modal-buttons">
+                <button className="close-modal-btn" onClick={handleExportPDF}>
+                  Download as PDF
+                </button>
+                <button className="close-modal-btn" onClick={() => setShowModal(false)}>
+                  Close
+                </button>
+                
+              </div>
             </div>
           </div>
         )}

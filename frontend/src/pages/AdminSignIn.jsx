@@ -286,31 +286,32 @@ const AdminSignIn = () => {
       {/* Forgot Password Popup */}
       {showForgotPassword && (
         <div className="forgot-password-popup-overlay">
-          <div className="forgot-password-popup">
-            <h2>Reset Password</h2>
-            <form onSubmit={handleResetPassword}>
-              {resetError && <p className="error-message">{resetError}</p>}
-              {resetSuccess && <p className="success-message">{resetSuccess}</p>}
-              <label>Email Address</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                required
-              />
-              <div className="forgot-password-buttons">
-                <button type="submit" className="reset-button">Send Reset Email</button>
-                <button
-                  type="button"
-                  className="cancel-button"
-                  onClick={() => setShowForgotPassword(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
+<motion.div
+  className="forgot-password-popup"
+  initial={{ opacity: 0, scale: 0.9 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.3 }}
+>
+  <button className="close-button" onClick={() => setShowForgotPassword(false)}>✖</button>
+  <h2>Reset Password</h2>
+  <form onSubmit={handleResetPassword}>
+    {resetError && <p className="error-message">{resetError}</p>}
+    {resetSuccess && <p className="success-message">{resetSuccess}</p>}
+    <label>Email Address</label>
+    <input
+      type="email"
+      placeholder="Enter your email"
+      value={resetEmail}
+      onChange={(e) => setResetEmail(e.target.value)}
+      required
+    />
+    <div className="forgot-password-buttons">
+      <button type="submit" className="reset-button">Send Reset Email</button>
+      <button type="button" className="cancel-button" onClick={() => setShowForgotPassword(false)}>Cancel</button>
+    </div>
+  </form>
+</motion.div>
+
         </div>
       )}
     </div>

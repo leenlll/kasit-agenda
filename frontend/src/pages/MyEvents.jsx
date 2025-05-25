@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
 import Background from "../components/Background";
 import Header from "../components/Header";
-import { Link } from "react-router-dom";
 import home from "../assets/home.png";
+import logoutIcon from "../assets/logout.png";
 import "./MyEvents.css";
 
 const MyEvents = () => {
+  const [user, setUser] = useState(null);
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user = auth.currentUser;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchRegisteredEvents = async () => {
@@ -19,7 +29,8 @@ const MyEvents = () => {
         const studentRef = doc(db, "students", user.uid);
         const studentSnap = await getDoc(studentRef);
         if (studentSnap.exists()) {
-          setRegisteredEvents(studentSnap.data().registeredEvents || []);
+          const rawEvents = studentSnap.data().registeredEvents || [];
+          setRegisteredEvents(rawEvents);
         }
       } catch (err) {
         console.error("Error fetching registered events:", err);
@@ -31,33 +42,63 @@ const MyEvents = () => {
     fetchRegisteredEvents();
   }, [user]);
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
   return (
     <div className="my-events-page">
       <Background />
       <Header
         showAboutUs={false}
         extraRightContent={
-          <Link to="/">
-            <img src={home} alt="Home" className="home-img" />
-          </Link>
+          <div className="header-icons">
+            <img
+              src={logoutIcon}
+              alt="Logout"
+              className="header-icon"
+              onClick={handleLogout}
+            />
+            <Link to="/">
+              <img src={home} alt="Home" className="home-img" />
+            </Link>
+          </div>
         }
       />
 
-      <div className="my-events-content">
-        <h1>📅 My Registered Events</h1>
+      <div className="my-events-container">
+        <h2 className="page-title">My Registered Events</h2>
+
         {loading ? (
-          <p>Loading...</p>
+          <p className="loading-text">Loading...</p>
         ) : registeredEvents.length > 0 ? (
           <ul className="event-list">
-            {registeredEvents.map((event, index) => (
-              <li key={index} className="event-item">
-                {event}
-              </li>
-            ))}
-          </ul>
+  {registeredEvents.map((event, index) => {
+    const [name, date] = event.split(" - ");
+    return (
+      <li key={index} className="event-item">
+        <div className="event-details">
+          <span className="event-name">{name}</span>
+          <span className="event-date">{date}</span>
+        </div>
+        <Link to={`/event-info/${date}`} className="event-info-link">
+          <span>ℹ</span> Info
+        </Link>
+      </li>
+    );
+  })}
+</ul>
+
         ) : (
-          <p>You haven't registered for any events yet.</p>
+          <p className="no-events">You haven't registered for any events yet.</p>
         )}
+              <button onClick={() => window.history.back()} className="back"> Back </button>
+
       </div>
     </div>
   );

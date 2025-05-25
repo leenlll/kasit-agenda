@@ -21,6 +21,7 @@ import EditOrganizerProfile from "./pages/EditOrganizerProfile";
 import StudentSignIn from './pages/StudentSignIn';
 import MyEvents from "./pages/MyEvents";
 import AdminLogs from "./pages/AdminLogs";
+import EventInfoPage from "./pages/EventInfo";
 
 function App() {
   return (
@@ -44,8 +45,9 @@ function App() {
         <Route path="/edit-profile" element={<EditOrganizerProfile />} />
         <Route path="/StudentSignIn" element={<StudentSignIn />} />
         <Route path="/viewer-dashboard" element={<ViewerDashboard />} />
-        <Route path="/my-events" element={<MyEvents />} />
-<Route path="/admin-logs" element={<AdminLogs />} />
+        <Route path="/MyEvents" element={<MyEvents />} />
+        <Route path="/admin-logs" element={<AdminLogs />} />
+        <Route path="/event-info/:date" element={<EventInfo />} />
 
 
         </Routes>

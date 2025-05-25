@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { db } from "../firebaseConfig";
-import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import "./AddFeedback.css";
+import { db, auth } from "../firebaseConfig";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
+import {
+  onAuthStateChanged,
+  signOut
+} from "firebase/auth";
+
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
-import { Link } from "react-router-dom";
-
-
+import logoutIcon from "../assets/logout.png";
+import myevents from "../assets/view-requests.png";
+import "./AddFeedback.css";
 
 const AddFeedback = () => {
   const { date } = useParams();
   const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [userChecked, setUserChecked] = useState(false);
   const [eventName, setEventName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState({
@@ -30,11 +43,17 @@ const AddFeedback = () => {
     trainingSuggestions: "",
   });
 
-  // ✅ Fetch Event Name from Firestore
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setUserChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        console.log(`🔍 Fetching event details for date: ${date}`);
         if (!date) return;
 
         const eventsCollection = collection(db, "events");
@@ -45,7 +64,6 @@ const AddFeedback = () => {
           const eventData = querySnapshot.docs[0].data();
           setEventName(eventData.eventName || "Unnamed Event");
         } else {
-          console.warn("⚠️ No event found for this date.");
           setEventName("Unknown Event");
         }
       } catch (error) {
@@ -66,7 +84,11 @@ const AddFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "eventFeedback"), { eventDate: date, eventName, ...feedback });
+      await addDoc(collection(db, "eventFeedback"), {
+        eventDate: date,
+        eventName,
+        ...feedback
+      });
       alert("✅ Feedback submitted successfully!");
       navigate(`/EventInfo/${date}`);
     } catch (error) {
@@ -75,18 +97,47 @@ const AddFeedback = () => {
     }
   };
 
+  const handleLogout = async () => {
+    const confirm = window.confirm("Are you sure you want to log out?");
+    if (!confirm) return;
+
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+    }
+  };
+
   return (
     <div className="feedback-page">
       <Background />
       <Header
-  showAboutUs={false}
-  extraRightContent={
-    <Link to="/">
-      <img src={home} alt="Home" className="home-img" />
-    </Link>
-  }
-/>
-
+        showAboutUs={false}
+        extraRightContent={
+          <div className="header-icons">
+            {userChecked && user && (
+              <>
+                <img
+                  src={myevents}
+                  alt="My Events"
+                  className="header-icon"
+                  onClick={() => navigate("/MyEvents")}
+                />
+                <img
+                  src={logoutIcon}
+                  alt="Logout"
+                  className="header-icon"
+                  onClick={handleLogout}
+                />
+              </>
+            )}
+            <Link to="/">
+              <img src={home} alt="Home" className="home-img" />
+            </Link>
+          </div>
+        }
+      />
 
       <div className="feedback-form-container">
         <motion.div
@@ -96,9 +147,6 @@ const AddFeedback = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="feedback-title">Event Feedback Form</h1>
-          <p className="selected-date">
-            Providing feedback for: <strong>{loading ? "Loading..." : eventName}</strong>
-          </p>
 
           <motion.form onSubmit={handleSubmit} className="feedback-form">
             <table className="feedback-table">
@@ -113,24 +161,28 @@ const AddFeedback = () => {
                 </tr>
               </thead>
               <tbody>
-                {/* ✅ These now all have 5 radio options */}
                 {[
                   { name: "usefulness", label: "Was the event useful for you?" },
                   { name: "participationAgain", label: "Would you participate in such an event again?" },
                   { name: "duration", label: "Was the event duration appropriate?" },
-                  { name: "relevance", label: "How relevant was the event to your studies?" }
+                  { name: "relevance", label: "How relevant was the event to your studies?" },
                 ].map((item) => (
                   <tr key={item.name}>
                     <td>{item.label}</td>
                     {["Excellent", "Very Good", "Good", "Fair", "Poor"].map((value) => (
                       <td key={value}>
-                        <input type="radio" name={item.name} value={value} onChange={handleChange} required />
+                        <input
+                          type="radio"
+                          name={item.name}
+                          value={value}
+                          onChange={handleChange}
+                          required
+                        />
                       </td>
                     ))}
                   </tr>
                 ))}
 
-                {/* ✅ Other Yes/No questions */}
                 <tr>
                   <td>Do you prefer curricular or extracurricular activities?</td>
                   <td colSpan="2">
@@ -181,15 +233,27 @@ const AddFeedback = () => {
 
             <div className="feedback-suggestions">
               <label>Suggestions to improve such events:</label>
-              <textarea name="suggestions" value={feedback.suggestions} onChange={handleChange} />
+              <textarea
+                name="suggestions"
+                value={feedback.suggestions}
+                onChange={handleChange}
+              />
 
               <label>Suggestions for training programs / activities:</label>
-              <textarea name="trainingSuggestions" value={feedback.trainingSuggestions} onChange={handleChange} />
+              <textarea
+                name="trainingSuggestions"
+                value={feedback.trainingSuggestions}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="button-group">
-              <button type="button" className="go-back-btn" onClick={() => navigate(-1)}>Back</button>
-              <button type="submit" className="submit-button">Submit Feedback</button>
+              <button type="button" className="go-back-btn" onClick={() => navigate(-1)}>
+                Back
+              </button>
+              <button type="submit" className="submit-button">
+                Submit Feedback
+              </button>
             </div>
           </motion.form>
         </motion.div>

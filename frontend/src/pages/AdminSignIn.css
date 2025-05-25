@@ -66,13 +66,20 @@
     font-size: 1rem;
     box-sizing: border-box; /* Ensures consistent size */
 }
-
+.forgot-password-text{
+  color: #3e3ea6;
+  cursor: pointer;
+  
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-decoration: underline;
+  text-align: right;
+}
 /* Button Styling */
 .signin-button {
     background: #3e3ea6;
     color: white;
     font-size: 1.2rem;
-    font-weight: bold;
     border: none;
     cursor: pointer;
     transition: background 0.3s ease;
@@ -116,64 +123,102 @@
   border-radius: 10px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  animation: fadeInPopup 0.4s ease;
 }
 
 .forgot-password-popup h2 {
   margin-top: 0;
   margin-bottom: 1rem;
   text-align: center;
+  color: #3e3ea6;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .forgot-password-popup label {
   display: block;
   margin-bottom: 0.25rem;
   font-weight: bold;
+  color: #3e3ea6;
+  text-align: left;
 }
 
 .forgot-password-popup input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid #3e3ea6;
+  font-size: 1rem;
   margin-bottom: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .forgot-password-buttons {
   display: flex;
   justify-content: space-between;
-}
-
-.reset-button, .cancel-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  gap: 10px;
 }
 
 .reset-button {
-  background-color: #007bff;
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+
+.reset-button {
+  background-color: #3e3ea6;
   color: white;
 }
 
-.cancel-button {
-  background-color: #ccc;
-  color: black;
+.reset-button:hover {
+  background-color: #6262ac;
 }
 
-/* Responsive Fix */
+
+.error-message {
+  color: #f44336;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+@keyframes fadeInPopup {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 480px) {
-    .signin-title {
-        font-size: 2rem;
-    }
+  .forgot-password-popup {
+    padding: 1.5rem;
+  }
 
-    .signin-content {
-        width: 90%;
-        padding: 1.5rem;
-    }
+  .forgot-password-buttons {
+    flex-direction: column;
+  }
 
-    .signin-form input,
-    .signin-button {
-        font-size: 0.9rem;
-    }
+  .reset-button,
+  .cancel-button {
+    font-size: 0.9rem;
+  }
 }

@@ -16,7 +16,6 @@ router.post("/update-booking-status", async (req, res) => {
   try {
     status = status.toLowerCase();
 
-    //  Notify Organizer with the correct status message
    const decisionMessage =
   status === "approved"
     ? `Dear Organizer,

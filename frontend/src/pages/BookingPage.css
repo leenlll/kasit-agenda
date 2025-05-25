@@ -110,18 +110,27 @@ Modified Time Inputs
     font-size: 1rem;
 }
 
-.submit-button,
-.go-back-btn {
-  background: #3e3ea6;
-  border: 2px solid #3e3ea6;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin: 10px;
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
 }
+
+.button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #2c2c85;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #4444aa;
+}
+
 
 
 .header-icons {
