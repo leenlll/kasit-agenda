@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,7 +10,7 @@ import Header from "../components/Header";
 import home from "../assets/home.png";
 import viewRequestsIcon from "../assets/view-requests.png";
 import { db, auth } from "../firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";  // <-- added query, where, getDocs
 import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import { signOut } from "firebase/auth";
@@ -23,17 +24,17 @@ const BookingPage = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [timeError, setTimeError] = useState("");
 
-useEffect(() => {
-  const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-    if (!currentUser) {
-      navigate("/"); 
-    } else {
-      setUser(currentUser);
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        navigate("/");
+      } else {
+        setUser(currentUser);
+      }
+    });
 
-  return () => unsubscribe(); 
-}, []);
+    return () => unsubscribe();
+  }, []);
 
   const [formData, setFormData] = useState({
     eventType: "",
@@ -67,75 +68,89 @@ useEffect(() => {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!user) {
-    toast.error("Please sign in first!");
-    return;
-  }
-
-  if (timeError) {
-    toast.error(timeError);
-    return;
-  }
-
-  const requiredFields = [
-    "eventType",
-    "eventName",
-    "organizer",
-    "description",
-    "timeFrom",
-    "timeTo",
-    "location",
-    "targetedStudents",
-    "supervisorName",
-    "phoneNumber",
-  ];
-
-  for (const field of requiredFields) {
-    if (!formData[field]) {
-      toast.error(`Please fill in the ${field.replace(/([A-Z])/g, " $1").trim()} field.`);
+    if (!user) {
+      toast.error("Please sign in first!");
       return;
     }
-  }
 
-  try {
-    const bookingData = {
-      ...formData,
-      eventDate: selectedDate,
-      organizerEmail: user.email,
-      organizerId: user.uid,
-      status: "Pending",
-    };
-
-    // Save booking to Firestore
-    await addDoc(collection(db, "bookings"), bookingData);
-
-    try {
-      await axios.post("https://kasit-agenda.onrender.com/api/bookings/book-event", {
-        organizerEmail: user.email,
-        organizerName: formData.organizer,
-        eventName: formData.eventName,
-        eventDate: selectedDate,
-        timeFrom: formData.timeFrom,
-        timeTo: formData.timeTo,
-        location: formData.location,
-        description: formData.description,
-      });
-      console.log("✅ Email sent to admin and organizer");
-    } catch (emailError) {
-      console.error("❌ Email failed:", emailError);
-      toast.warning("Booking saved, but email could not be sent.");
+    if (timeError) {
+      toast.error(timeError);
+      return;
     }
 
-    toast.success("Booking submitted successfully!");
-    setTimeout(() => navigate("/view-requests"), 2000);
-  } catch (error) {
-    console.error("❌ Firestore Error:", error);
-    toast.error("Failed to submit booking. Please try again.");
-  }
-}
+    const requiredFields = [
+      "eventType",
+      "eventName",
+      "organizer",
+      "description",
+      "timeFrom",
+      "timeTo",
+      "location",
+      "targetedStudents",
+      "supervisorName",
+      "phoneNumber",
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        toast.error(`Please fill in the ${field.replace(/([A-Z])/g, " $1").trim()} field.`);
+        return;
+      }
+    }
+
+    try {
+      // **Check if user already submitted an event on this date**
+      const bookingsRef = collection(db, "bookings");
+      const q = query(
+        bookingsRef,
+        where("organizerId", "==", user.uid),
+        where("eventDate", "==", selectedDate)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        toast.error("You have already submitted an event for this date.");
+        return;
+      }
+
+      const bookingData = {
+        ...formData,
+        eventDate: selectedDate,
+        organizerEmail: user.email,
+        organizerId: user.uid,
+        status: "Pending",
+      };
+
+      // Save booking to Firestore
+      await addDoc(collection(db, "bookings"), bookingData);
+
+      try {
+        await axios.post("https://kasit-agenda.onrender.com/api/bookings/book-event", {
+          organizerEmail: user.email,
+          organizerName: formData.organizer,
+          eventName: formData.eventName,
+          eventDate: selectedDate,
+          timeFrom: formData.timeFrom,
+          timeTo: formData.timeTo,
+          location: formData.location,
+          description: formData.description,
+        });
+        console.log("✅ Email sent to admin and organizer");
+      } catch (emailError) {
+        console.error("❌ Email failed:", emailError);
+        toast.warning("Booking saved, but email could not be sent.");
+      }
+
+      toast.success("Booking submitted successfully!");
+      setTimeout(() => navigate("/view-requests"), 2000);
+    } catch (error) {
+      console.error("❌ Firestore Error:", error);
+      toast.error("Failed to submit booking. Please try again.");
+    }
+  };
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
@@ -257,15 +272,15 @@ useEffect(() => {
               <option value="">Select Number</option>
               <option value="0-40">0-40 Lecture Halls</option>
               <option value="40-200">40-200 Al-Louzy Auditorium</option>
-</select>
-              <div className="button-group">
-  <button type="button" className="button" onClick={() => navigate(-1)}>
-    Back
-  </button>
-  <button type="submit" className="button">
-    Submit
-  </button>
-</div>
+            </select>
+            <div className="button-group">
+              <button type="button" className="button" onClick={() => navigate(-1)}>
+                Back
+              </button>
+              <button type="submit" className="button">
+                Submit
+              </button>
+            </div>
           </motion.form>
         </motion.div>
       </div>
