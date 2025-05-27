@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { db, auth } from "../firebaseConfig";
 import {  collection,  getDocs,  updateDoc,  doc,  query,  where,  getDoc,  setDoc,} from "firebase/firestore";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import axios from "axios";
 import Background from "../components/Background";
 import Header from "../components/Header";
@@ -36,6 +36,13 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/");
+    } else {
+      setUser(currentUser);
+    }
+  });
     if (fetchCalled.current) return;
     fetchCalled.current = true;
 
@@ -77,8 +84,8 @@ const AdminDashboard = () => {
         console.error("❌ Error fetching events or registrations:", error);
       }
     };
-
     fetchEvents();
+      return () => unsubscribe();
   }, []);
 
   const handleStatusUpdate = async (eventId, newStatus, organizerEmail, eventName) => {

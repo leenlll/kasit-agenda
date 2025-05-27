@@ -23,12 +23,17 @@ const BookingPage = () => {
   const [user, setUser] = useState(auth.currentUser);
   const [timeError, setTimeError] = useState("");
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+useEffect(() => {
+  const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+    if (!currentUser) {
+      navigate("/"); 
+    } else {
       setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  });
+
+  return () => unsubscribe(); 
+}, []);
 
   const [formData, setFormData] = useState({
     eventType: "",

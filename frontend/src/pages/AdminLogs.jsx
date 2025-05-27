@@ -68,70 +68,84 @@ const AdminLogs = () => {
     el.style.display = "";
   });
 };
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      navigate("/"); 
+      return;
+    }
 
-      const adminRef = doc(db, "admins", user.uid);
-      const adminSnap = await getDoc(adminRef);
-      if (!adminSnap.exists()) return;
+    const adminRef = doc(db, "admins", user.uid);
+    const adminSnap = await getDoc(adminRef);
 
-      try {
-        const bookingsSnapshot = await getDocs(collection(db, "bookings"));
-        const studentsSnapshot = await getDocs(collection(db, "students"));
-        const logsData = [];
+    if (!adminSnap.exists()) {
+      navigate("/"); 
+      return;
+    }
 
-        for (const eventDoc of bookingsSnapshot.docs) {
-          const data = eventDoc.data();
-          const eventName = data.eventName || "Untitled";
-          const eventDate = data.eventDate || "Unknown";
-          const eventKey = `${eventName} - ${eventDate}`;
-          const organizerName = data.organizer || "Unknown";
-          const organizerEmail = data.organizerEmail || "N/A";
-          const location = data.location || "N/A";
-          const time = `${data.timeFrom || ""} - ${data.timeTo || ""}`;
-          const status = data.status || "Unknown";
-          let timestamp;
+    try {
+      const bookingsSnapshot = await getDocs(collection(db, "bookings"));
+      const studentsSnapshot = await getDocs(collection(db, "students"));
+      const logsData = [];
 
-          if (data.eventDate && data.timeFrom) {
-            const timestampStr = `${data.eventDate}T${data.timeFrom}:00`;
-            timestamp = new Date(timestampStr);
-          } else {
-            timestamp = new Date();
-          }
+      for (const eventDoc of bookingsSnapshot.docs) {
+        const data = eventDoc.data();
+        const eventName = data.eventName || "Untitled";
+        const eventDate = data.eventDate || "Unknown";
+        const eventKey = `${eventName} - ${eventDate}`;
+        const organizerName = data.organizer || "Unknown";
+        const organizerEmail = data.organizerEmail || "N/A";
+        const location = data.location || "N/A";
+        const time = `${data.timeFrom || ""} - ${data.timeTo || ""}`;
+        const status = data.status || "Unknown";
+        let timestamp;
 
-          const registeredStudents = [];
-          studentsSnapshot.forEach((studentDoc) => {
-            const studentData = studentDoc.data();
-            const registeredEvents = studentData.registeredEvents || [];
-            if (Array.isArray(registeredEvents) && registeredEvents.includes(eventKey)) {
-              const fallbackName =
-                studentData.name || studentData.displayName || studentData.email || "Unknown Student";
-              registeredStudents.push(fallbackName);
-            }
-          });
-
-          logsData.push({
-            eventName,
-            eventDate,
-            status,
-            organizerName,
-            organizerEmail,
-            time,
-            location,
-            registeredStudents,
-            timestamp,
-          });
+        if (data.eventDate && data.timeFrom) {
+          const timestampStr = `${data.eventDate}T${data.timeFrom}:00`;
+          timestamp = new Date(timestampStr);
+        } else {
+          timestamp = new Date();
         }
 
-        logsData.sort((a, b) => b.timestamp - a.timestamp);
-        setLogs(logsData);
-      } catch (err) {
-        console.error("❌ Firestore fetch error:", err.message);
-      }
-    });
-  }, []);
+        const registeredStudents = [];
+        studentsSnapshot.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          const registeredEvents = studentData.registeredEvents || [];
+          if (
+            Array.isArray(registeredEvents) &&
+            registeredEvents.includes(eventKey)
+          ) {
+            const fallbackName =
+              studentData.name ||
+              studentData.displayName ||
+              studentData.email ||
+              "Unknown Student";
+            registeredStudents.push(fallbackName);
+          }
+        });
 
+        logsData.push({
+          eventName,
+          eventDate,
+          status,
+          organizerName,
+          organizerEmail,
+          time,
+          location,
+          registeredStudents,
+          timestamp,
+        });
+      }
+
+      logsData.sort((a, b) => b.timestamp - a.timestamp);
+      setLogs(logsData);
+    } catch (err) {
+      console.error("❌ Firestore fetch error:", err.message);
+    }
+  });
+
+  return () => unsubscribe(); 
+}, []);
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =
       log.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||

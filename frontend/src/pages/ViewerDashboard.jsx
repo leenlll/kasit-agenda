@@ -53,13 +53,18 @@ const ViewerDashboard = () => {
     fetchEvents();
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/"); 
+    } else {
       setUser(currentUser);
       setAuthChecked(true);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  });
+  return () => unsubscribe();
+}, []);
+
 
   const handleLogout = async () => {
     try {

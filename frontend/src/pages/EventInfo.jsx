@@ -11,6 +11,7 @@ import Header from "../components/Header";
 import home from "../assets/home.png";
 import myevents from "../assets/view-requests.png";
 import logoutIcon from "../assets/logout.png";
+import { signOut } from "firebase/auth";
 
 const EventInfoPage = () => {
 
@@ -23,13 +24,18 @@ const EventInfoPage = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/");
+    } else {
       setUser(currentUser);
-      setUserChecked(true);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+    setUserChecked(true);
+  });
+
+  return () => unsubscribe();
+}, []);
 
   useEffect(() => {
     const fetchEventAndOrganizer = async () => {
@@ -43,8 +49,8 @@ const EventInfoPage = () => {
 
         if (!querySnapshot.empty) {
           const eventDoc = querySnapshot.docs[0];
-const eventData = { id: eventDoc.id, ...eventDoc.data() };
-setEvent(eventData);
+          const eventData = { id: eventDoc.id, ...eventDoc.data() };
+            setEvent(eventData);
 
 
           const organizerId = eventData.organizerId;

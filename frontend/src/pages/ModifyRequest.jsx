@@ -15,6 +15,14 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const ModifyRequest = () => {
+    useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      if (!currentUser) {
+        navigate("/"); 
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   const { id: bookingId } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);

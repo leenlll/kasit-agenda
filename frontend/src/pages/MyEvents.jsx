@@ -15,12 +15,16 @@ const MyEvents = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/");
+    } else {
       setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  });
+  return () => unsubscribe();
+}, []);
 
   useEffect(() => {
     const fetchRegisteredEvents = async () => {

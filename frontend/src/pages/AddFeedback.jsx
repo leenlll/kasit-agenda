@@ -2,18 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { db, auth } from "../firebaseConfig";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-} from "firebase/firestore";
-import {
-  onAuthStateChanged,
-  signOut
-} from "firebase/auth";
-
+import {  collection, query,  where,  getDocs,  addDoc,} from "firebase/firestore";
+import { onAuthStateChanged,  signOut} from "firebase/auth";
 import Background from "../components/Background";
 import Header from "../components/Header";
 import home from "../assets/home.png";
@@ -44,38 +34,44 @@ const AddFeedback = () => {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/");
+    } else {
       setUser(currentUser);
       setUserChecked(true);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  });
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        if (!date) return;
+  return () => unsubscribe(); // cleanup when user leaves the page
+}, []);
 
-        const eventsCollection = collection(db, "events");
-        const q = query(eventsCollection, where("eventDate", "==", date));
-        const querySnapshot = await getDocs(q);
+useEffect(() => {
+  const fetchEvent = async () => {
+    try {
+      if (!date) return;
 
-        if (!querySnapshot.empty) {
-          const eventData = querySnapshot.docs[0].data();
-          setEventName(eventData.eventName || "Unnamed Event");
-        } else {
-          setEventName("Unknown Event");
-        }
-      } catch (error) {
-        console.error("❌ Error fetching event:", error);
-        setEventName("Error loading event");
-      } finally {
-        setLoading(false);
+      const eventsCollection = collection(db, "events");
+      const q = query(eventsCollection, where("eventDate", "==", date));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const eventData = querySnapshot.docs[0].data();
+        setEventName(eventData.eventName || "Unnamed Event");
+      } else {
+        setEventName("Unknown Event");
       }
-    };
+    } catch (error) {
+      console.error("❌ Error fetching event:", error);
+      setEventName("Error loading event");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchEvent();
-  }, [date]);
+  fetchEvent();
+}, [date]);
+
 
   const handleChange = (e) => {
     setFeedback({ ...feedback, [e.target.name]: e.target.value });

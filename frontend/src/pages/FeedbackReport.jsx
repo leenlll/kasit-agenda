@@ -11,7 +11,7 @@ import home from "../assets/home.png";
 import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import viewRequestsIcon from "../assets/view-requests.png";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 
 const colorMap = {
   Excellent: "#4caf50",
@@ -36,6 +36,14 @@ const binaryQuestions = [
 ];
 
 const FeedbackReport = () => {
+    useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate("/"); 
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   const { date } = useParams();
   const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
