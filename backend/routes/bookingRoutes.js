@@ -2,7 +2,7 @@ const express = require("express");
 const { sendEmail } = require("../services/emailService");
 const router = express.Router();
 
-// ✅ Route: Organizer Books an Event / Notify Admins
+
 router.post("/book-event", async (req, res) => {
   console.log("📩 Organizer requested to book an event:", req.body);
 
@@ -17,21 +17,20 @@ router.post("/book-event", async (req, res) => {
     description,
   } = req.body;
 
-  if (
-    !organizerEmail || !eventName || !eventDate ||
-    !timeFrom || !timeTo || !location || !description
-  ) {
-    console.error("❌ Missing booking details:", req.body);
+
+  if (!organizerEmail || !eventName || !eventDate || !timeFrom || !timeTo || !location || !description) {
+    console.error("❌ Missing booking details:", { organizerEmail, eventName, eventDate, timeFrom, timeTo, location, description });
     return res.status(400).json({ success: false, message: "Missing booking details." });
   }
 
   try {
     console.log("📤 Sending email to admins...");
-    const adminEmails = ["leenanghami@gmail.com"];
+    const adminEmails = ["leenanghami@gmail.com"]; 
+   
+const emailPromises = adminEmails.map(async (admin) => {
 
-    const emailPromises = adminEmails.map(async (admin) => {
-      const subject = `📢 New Booking Request: ${eventName} on ${eventDate}`;
-      const message = `
+    const subject = `📢 New Booking Request: ${eventName} on ${eventDate}`;
+    const message = `
 Hello Admin,
 
 A new event has been requested by an organizer. Here are the details:
@@ -60,10 +59,11 @@ KASIT Agenda System`.trim();
     });
 
     await Promise.all(emailPromises);
+   
+   
+  const organizerSubject = ` Your Booking Request for "${eventName}" was Received`;
 
-    // ✅ Confirmation to organizer
-    const organizerSubject = `Your Booking Request for "${eventName}" was Received`;
-    const organizerMessage = `
+const organizerMessage = `
 Hello ${organizerName},
 
 Thank you for submitting your event booking request on KASIT Agenda.

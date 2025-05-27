@@ -2,7 +2,7 @@ const express = require("express");
 const { sendEmail } = require("../services/emailService");
 const router = express.Router();
 
-//  Route: Admin Approves/Deny Event /Notify Organizer
+
 router.post("/update-booking-status", async (req, res) => {
   console.log("📩 Received admin request to update booking status:", req.body);
 
@@ -16,6 +16,7 @@ router.post("/update-booking-status", async (req, res) => {
   try {
     status = status.toLowerCase();
 
+  
    const decisionMessage =
   status === "approved"
     ? `Dear Organizer,

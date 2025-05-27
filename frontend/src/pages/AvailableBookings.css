@@ -140,7 +140,7 @@
     border-radius: 10px;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1024px) {
     .bookings-title {
         font-size: 2rem;

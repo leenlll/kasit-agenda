@@ -254,14 +254,11 @@ const BookingPage = () => {
               <option value="0-40">0-40 Lecture Halls</option>
               <option value="40-200">40-200 Al-Louzy Auditorium</option>
 </select>
-              <div className="button-group">
-  <button type="button" className="button" onClick={() => navigate(-1)}>
-    Back
-  </button>
-  <button type="submit" className="button">
-    Submit
-  </button>
-</div>
+            <div className="button-group">
+             <button type="button" className="go-back-btn" onClick={() => navigate(-1)}>Back</button>
+<button type="submit" className="submit-button">Submit</button>
+
+            </div>
           </motion.form>
         </motion.div>
       </div>

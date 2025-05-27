@@ -66,7 +66,7 @@
     margin-left: 6px;
   }
   
-  /* Buttons */
+ 
   .button-group {
     display: flex;
     justify-content: center;
@@ -98,7 +98,7 @@
     background: #5151b3;
   }
   
-  /* Danger Zone */
+  
   .status-message {
     margin-top: 10px;
     font-weight: bold;

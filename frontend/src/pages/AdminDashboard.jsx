@@ -35,18 +35,23 @@ const AdminDashboard = () => {
     }
   };
 
+  
   useEffect(() => {
     if (fetchCalled.current) return;
     fetchCalled.current = true;
 
     const fetchEvents = async () => {
       try {
+        console.log("🔍 Fetching all event requests...");
+
+        
         const bookingsSnapshot = await getDocs(collection(db, "bookings"));
         const bookingsList = bookingsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
+       
         const eventsQuery = query(
           collection(db, "events"),
           where("status", "in", ["Approved", "approved"])
@@ -57,6 +62,7 @@ const AdminDashboard = () => {
           ...doc.data(),
         }));
 
+        
         const allRequests = [...bookingsList, ...eventsList];
         setEvents(allRequests);
 
@@ -81,6 +87,7 @@ const AdminDashboard = () => {
     fetchEvents();
   }, []);
 
+  
   const handleStatusUpdate = async (eventId, newStatus, organizerEmail, eventName) => {
     try {
       const eventRef = doc(db, "bookings", eventId);
@@ -113,36 +120,8 @@ const AdminDashboard = () => {
       console.error(`❌ Error updating status:`, error);
     }
   };
-const handleExportPDF = () => {
-  const doc = new jsPDF();
-  doc.setFontSize(18);
-  doc.text("Registered Students", 14, 22);
 
-  const tableData = selectedEventStudents.map((student, index) => [
-    index + 1,
-    student.studentName,
-    student.email,
-  ]);
-
-autoTable(doc, {
-  head: [["#", "Student Name", "Email"]],
-  body: tableData,
-  startY: 30,
-  styles: { fontSize: 11 },
-  headStyles: { fillColor: [62, 62, 166] },
-});
-
-
-  const clean = (str) =>
-    str?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
-
-  const filename = selectedEventInfo.eventName
-    ? `students_${clean(selectedEventInfo.eventName)}_${selectedEventInfo.eventDate}.pdf`
-    : "registered_students.pdf";
-
-  doc.save(filename);
-};
-
+  
   const sendStatusEmail = async (organizerEmail, eventName, status) => {
     try {
       const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update-booking-status", {

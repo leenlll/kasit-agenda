@@ -54,38 +54,33 @@ const AdminLogs = () => {
         const studentsSnapshot = await getDocs(collection(db, "students"));
         const logsData = [];
 
-        for (const eventDoc of bookingsSnapshot.docs) {
-          const data = eventDoc.data();
-          const eventName = data.eventName || "Untitled";
-          const eventDate = data.eventDate || "Unknown";
-          const eventKey = `${eventName} - ${eventDate}`;
-          const organizerName = data.organizer || "Unknown";
-          const organizerEmail = data.organizerEmail || "N/A";
-          const location = data.location || "N/A";
-          const time = `${data.timeFrom || ""} - ${data.timeTo || ""}`;
-          const status = data.status || "Unknown";
-let timestamp;
-if (data.eventDate && data.timeFrom) {
-  const timestampStr = `${data.eventDate}T${data.timeFrom}:00`;
-  timestamp = new Date(timestampStr);
-} else {
-  timestamp = new Date();
-}
+      for (const eventDoc of eventsSnapshot.docs) {
+        const data = eventDoc.data();
+        const eventName = data.eventName || "Untitled";
+        const eventDate = data.eventDate || "Unknown";
+        const eventKey = `${eventName} - ${eventDate}`;
+        let organizerName = data.organizer || "Unknown";
+        let organizerEmail = data.organizerEmail || "N/A";
+        let registeredStudents = [];
 
-          const registeredStudents = [];
+        
+        if (data.organizerId) {
+          const orgSnap = await getDoc(doc(db, "organizers", data.organizerId));
+          if (orgSnap.exists()) {
+            const orgData = orgSnap.data();
+            organizerName = `${orgData.firstName} ${orgData.lastName}`;
+            organizerEmail = orgData.email || organizerEmail;
+          }
+        }
 
-          studentsSnapshot.forEach((studentDoc) => {
-            const studentData = studentDoc.data();
-            const registeredEvents = studentData.registeredEvents || [];
-            if (
-              Array.isArray(registeredEvents) &&
-              registeredEvents.includes(eventKey)
-            ) {
-              const fallbackName =
-                studentData.name || studentData.displayName || studentData.email || "Unknown Student";
-              registeredStudents.push(fallbackName);
-            }
-          });
+        
+        studentsSnapshot.forEach((studentDoc) => {
+          const studentData = studentDoc.data();
+          const registeredEvents = studentData.registeredEvents || [];
+          if (Array.isArray(registeredEvents) && registeredEvents.includes(eventKey)) {
+            registeredStudents.push(studentData.name);
+          }
+        });
 
           logsData.push({
             eventName,

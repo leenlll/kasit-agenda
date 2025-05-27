@@ -9,8 +9,7 @@ import home from "../assets/home.png";
 import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import { signOut } from "firebase/auth";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -97,8 +96,9 @@ const handleExportPDF = () => {
     headStyles: { fillColor: [62, 62, 166] },
   });
 
-  const clean = (str) =>
-    str?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+ 
+  const cleanName = (name) =>
+    name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 
   const filename = selectedEventInfo.eventName
     ? `students_${clean(selectedEventInfo.eventName)}_${selectedEventInfo.eventDate}.pdf`
@@ -223,7 +223,6 @@ const handleExportPDF = () => {
           Back
         </Link>
 
-        {/* Modal */}
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content">

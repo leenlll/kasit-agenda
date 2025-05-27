@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify'; // ✅ Import ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // ✅ Import Toastify styles
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 import LandingPage from './pages/LandingPage';
 import AboutUs from './pages/AboutUs';

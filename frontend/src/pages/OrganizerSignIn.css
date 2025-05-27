@@ -103,7 +103,7 @@
   text-align: right;
 }
 
-/* Popup styles */
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -170,7 +170,6 @@
   font-weight: bold;
 }
 
-/* Responsive Fix */
 @media (max-width: 480px) {
     .signin-title {
         font-size: 2rem;

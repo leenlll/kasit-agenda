@@ -15,7 +15,7 @@
     overflow: hidden;
 }
 
-/* Page Title */
+
 .booking-title {
     font-size: 2.5rem;
     font-weight: 700;
@@ -24,7 +24,7 @@
     margin-bottom: 15px;
 }
 
-/* Selected Date */
+
 .selected-date {
     font-size: 1.5rem;
     font-weight: bold;
@@ -32,7 +32,7 @@
     margin-bottom: 20px;
 }
 
-/* Booking Form */
+
 .booking-form {
     width: 90%;
     max-width: 600px;
@@ -47,7 +47,7 @@
     align-content: center;
 }
 
-/* Labels */
+
 .booking-form label {
     font-size: 1.1rem;
     font-weight: bold;
@@ -57,7 +57,7 @@
     margin-bottom: 5px;
 }
 
-/* Inputs */
+
 .booking-form input,
 .booking-form textarea,
 .booking-form select {
