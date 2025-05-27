@@ -15,7 +15,7 @@
     overflow: hidden;
 }
 
-/* Page Title */
+
 .booking-title {
     font-size: 2.5rem;
     font-weight: 700;
@@ -24,7 +24,7 @@
     margin-bottom: 15px;
 }
 
-/* Selected Date */
+
 .selected-date {
     font-size: 1.5rem;
     font-weight: bold;
@@ -32,7 +32,7 @@
     margin-bottom: 20px;
 }
 
-/* Booking Form */
+
 .booking-form {
     width: 90%;
     max-width: 600px;
@@ -47,7 +47,7 @@
     align-content: center;
 }
 
-/* Labels */
+
 .booking-form label {
     font-size: 1.1rem;
     font-weight: bold;
@@ -57,7 +57,7 @@
     margin-bottom: 5px;
 }
 
-/* Inputs */
+
 .booking-form input,
 .booking-form textarea,
 .booking-form select {
@@ -110,18 +110,27 @@ Modified Time Inputs
     font-size: 1rem;
 }
 
-.submit-button,
-.go-back-btn {
-  background: #3e3ea6;
-  border: 2px solid #3e3ea6;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin: 10px;
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
 }
+
+.button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #2c2c85;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #4444aa;
+}
+
 
 
 .header-icons {

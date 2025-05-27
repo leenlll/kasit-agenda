@@ -36,7 +36,7 @@ router.post("/reminders", async (req, res) => {
 });
 const dayjs = require("dayjs");
 
-// 🕓 GET /api/send-daily-reminders
+
 router.get("/send-daily-reminders", async (req, res) => {
   try {
     const tomorrow = dayjs().add(1, "day").format("YYYY-MM-DD");
@@ -63,7 +63,7 @@ router.get("/send-daily-reminders", async (req, res) => {
         text: `Hi there!\n\nJust a reminder: "${data.eventName}" is happening tomorrow (${data.eventDate}).\n\nTime: ${data.timeSlot || "TBA"}\n\nGood luck!\n– KASIT Agenda Team`,
       });
 
-      // ✅ Mark as sent
+     
       batch.update(docSnap.ref, { reminderSent: true });
     }
 

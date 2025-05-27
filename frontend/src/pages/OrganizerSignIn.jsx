@@ -114,7 +114,12 @@ const OrganizerSignIn = () => {
 
         {showResetPopup && (
           <div className="popup-overlay">
-            <div className="popup-box">
+<motion.div
+  className="popup-box"
+  initial={{ scale: 0.9, opacity: 0 }}
+  animate={{ scale: 1, opacity: 1 }}
+  transition={{ duration: 0.3 }}
+>
               <button className="close-button" onClick={() => setShowResetPopup(false)}>✖</button>
               <h2>Reset Password</h2>
               <input
@@ -141,7 +146,7 @@ const OrganizerSignIn = () => {
                 Send Reset Email
               </button>
               {resetMessage && <p className="reset-message">{resetMessage}</p>}
-            </div>
+</motion.div>
           </div>
         )}
       </main>

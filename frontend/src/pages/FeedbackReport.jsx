@@ -11,7 +11,7 @@ import home from "../assets/home.png";
 import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import viewRequestsIcon from "../assets/view-requests.png";
-import { signOut } from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 
 const colorMap = {
   Excellent: "#4caf50",
@@ -36,6 +36,14 @@ const binaryQuestions = [
 ];
 
 const FeedbackReport = () => {
+    useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate("/"); 
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   const { date } = useParams();
   const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
@@ -64,7 +72,11 @@ const FeedbackReport = () => {
       const eventSnap = await getDocs(
         query(collection(db, "events"), where("eventDate", "==", date))
       );
-      if (!eventSnap.empty) setEventName(eventSnap.docs[0].data().eventName);
+      if (!eventSnap.empty) {
+        setEventName(eventSnap.docs[0].data().eventName || "Unnamed Event");
+      } else {
+        setEventName("Unknown Event");
+      }
     };
     fetchData();
   }, [date]);
@@ -98,12 +110,21 @@ const FeedbackReport = () => {
       const x2 = center + radius * Math.cos((currentAngle + angle - 90) * (Math.PI / 180));
       const y2 = center + radius * Math.sin((currentAngle + angle - 90) * (Math.PI / 180));
 
-      const path = `
-        M ${center},${center}
-        L ${x1},${y1}
-        A ${radius},${radius} 0 ${largeArc} 1 ${x2},${y2}
-        Z
-      `;
+      const isFullCircle = percentage === 1;
+
+      const path = isFullCircle
+        ? `
+          M ${center},${center}
+          m 0,-${radius}
+          a ${radius},${radius} 0 1,1 0,${2 * radius}
+          a ${radius},${radius} 0 1,1 0,-${2 * radius}
+        `
+        : `
+          M ${center},${center}
+          L ${x1},${y1}
+          A ${radius},${radius} 0 ${largeArc} 1 ${x2},${y2}
+          Z
+        `;
 
       const midAngle = currentAngle + angle / 2;
       const labelX = center + radius * 0.55 * Math.cos((midAngle - 90) * (Math.PI / 180));
@@ -123,27 +144,45 @@ const FeedbackReport = () => {
     return { segments, total };
   };
 
-  const exportPDF = () => {
-    const input = reportRef.current;
-    const buttons = document.querySelectorAll(".no-print");
+ const exportPDF = () => {
+  const input = reportRef.current;
 
-    // Hide buttons
-    buttons.forEach((el) => (el.style.display = "none"));
+  const buttons = document.querySelectorAll(".no-print");
+  buttons.forEach((el) => (el.style.display = "none")); // Hide buttons
 
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
-      pdf.save(`feedback-report-${date}.pdf`);
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Restore buttons
-      buttons.forEach((el) => (el.style.display = "flex"));
-    });
-  };
+    let position = 0;
 
+    if (imgHeight <= pageHeight) {
+      // Fits on one page
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    } else {
+      // Multi-page logic
+      let remainingHeight = imgHeight;
+      while (remainingHeight > 0) {
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        remainingHeight -= pageHeight;
+        position -= pageHeight;
+
+        if (remainingHeight > 0) {
+          pdf.addPage();
+        }
+      }
+    }
+
+    pdf.save(`feedback-report-${date}.pdf`);
+
+    buttons.forEach((el) => (el.style.display = "flex")); // Restore buttons
+  });
+};
   return (
     <div className="feedback-report-page">
       <Background />

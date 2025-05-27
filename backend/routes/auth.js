@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
 
-// User Signup
 router.post('/signup', async (req, res) => {
   const { email, password } = req.body;
 
@@ -18,7 +17,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// User Login (Generating Custom Token)
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 

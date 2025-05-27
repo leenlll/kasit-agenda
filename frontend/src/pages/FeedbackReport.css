@@ -110,3 +110,7 @@
 .back-button:hover {
   background: #3e3ea6;
 }
+svg path {
+  stroke: white;
+  stroke-width: 1px;
+}

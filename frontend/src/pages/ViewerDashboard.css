@@ -49,7 +49,7 @@
   transform: scale(1.01);
 }
 
-/* Calendar base */
+
 .react-calendar {
   width: 100%;
   border: none;
@@ -72,7 +72,7 @@
   background: #9b9ee5;
 }
 
-/* Calendar Tiles */
+
 .react-calendar__tile {
   text-align: center;
   padding: 14px;
@@ -108,7 +108,7 @@
   color: black !important;
 }
 
-/* Event Marker */
+
 .event-marker {
   background-color: #9b9ee5;
   color: #3e3ea6;
@@ -122,12 +122,12 @@
 }
 
 
-/* Event highlight */
+
 .react-calendar__tile.event-day {
   border-radius: 10px;
 }
 
-/* Responsive */
+
 @media (max-width: 1024px) {
   .viewer-title {
     font-size: 2.2rem;
@@ -219,7 +219,7 @@
   }
 }
 
-/* Style headings inside the card */
+
 .floating-event-card strong {
   font-size: 0.95rem;
   color: #3e3ea6;

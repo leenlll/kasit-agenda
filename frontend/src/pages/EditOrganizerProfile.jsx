@@ -32,20 +32,24 @@ const EditOrganizerProfile = () => {
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const docRef = doc(db, "organizers", firebaseUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setOriginalData(docSnap.data());
-          setFormData(docSnap.data());
-        }
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+useEffect(() => {
+  const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+    if (!firebaseUser) {
+      navigate("/"); 
+      return;
+    }
+
+    setUser(firebaseUser);
+    const docRef = doc(db, "organizers", firebaseUser.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setOriginalData(docSnap.data());
+      setFormData(docSnap.data());
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -61,7 +65,7 @@ const EditOrganizerProfile = () => {
 
   const handleSave = async () => {
     try {
-      await handleReauthentication(); // secure update
+      await handleReauthentication(); 
 
       const userDoc = doc(db, "organizers", user.uid);
       await updateDoc(userDoc, formData);

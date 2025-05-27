@@ -5,12 +5,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./ViewerDashboard.css";
 import { db, auth } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  query,
-  where
-} from "firebase/firestore";
+import { collection, getDocs,  query,  where} from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Background from "../components/Background";
 import Header from "../components/Header";
@@ -58,13 +53,18 @@ const ViewerDashboard = () => {
     fetchEvents();
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    if (!currentUser) {
+      navigate("/"); 
+    } else {
       setUser(currentUser);
       setAuthChecked(true);
-    });
-    return () => unsubscribe();
-  }, []);
+    }
+  });
+  return () => unsubscribe();
+}, []);
+
 
   const handleLogout = async () => {
     try {
@@ -125,32 +125,31 @@ const ViewerDashboard = () => {
       <Background />
 
       <Header
-  showAboutUs={false}
-  extraRightContent={
-    <div className="header-icons">
-      {authChecked && user ? (
-        <>
-          <img
-            src={myevents}
-            alt="My Events"
-            className="header-icon"
-            onClick={() => navigate(`/MyEvents/${user.uid}`)}
-          />
-          
-          <img
-            src={logoutIcon}
-            alt="Logout"
-            className="header-icon"
-            onClick={handleLogout}
-          />
-        </>
-      ) : null}
-      <Link to="/">
-        <img src={home} alt="Home" className="home-img" />
-      </Link>
-    </div>
-  }
-/>
+        showAboutUs={false}
+        extraRightContent={
+          <div className="header-icons">
+            {authChecked && user ? (
+              <>
+                <img
+                  src={myevents}
+                  alt="My Events"
+                  className="header-icon"
+                  onClick={() => navigate("/MyEvents")}
+                />
+                <img
+                  src={logoutIcon}
+                  alt="Logout"
+                  className="header-icon"
+                  onClick={handleLogout}
+                />
+              </>
+            ) : null}
+            <Link to="/">
+              <img src={home} alt="Home" className="home-img" />
+            </Link>
+          </div>
+        }
+      />
 
       <main className="viewer-content">
         <motion.h1

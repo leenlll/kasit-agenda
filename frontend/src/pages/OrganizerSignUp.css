@@ -93,7 +93,7 @@
     text-decoration: underline;
 }
 
-/* Responsive Fix */
+
 @media (max-width: 480px) {
     .signup-title {
         font-size: 2rem;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify'; // ✅ Import ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // ✅ Import Toastify styles
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 import LandingPage from './pages/LandingPage';
 import AboutUs from './pages/AboutUs';
@@ -20,6 +20,8 @@ import FeedbackReport from './pages/FeedbackReport';
 import EditOrganizerProfile from "./pages/EditOrganizerProfile";
 import StudentSignIn from './pages/StudentSignIn';
 import MyEvents from "./pages/MyEvents";
+import AdminLogs from "./pages/AdminLogs";
+import EventInfoPage from "./pages/EventInfo";
 
 function App() {
   return (
@@ -43,7 +45,9 @@ function App() {
         <Route path="/edit-profile" element={<EditOrganizerProfile />} />
         <Route path="/StudentSignIn" element={<StudentSignIn />} />
         <Route path="/viewer-dashboard" element={<ViewerDashboard />} />
-        <Route path="/my-events" element={<MyEvents />} />
+        <Route path="/MyEvents" element={<MyEvents />} />
+        <Route path="/admin-logs" element={<AdminLogs />} />
+        <Route path="/event-info/:date" element={<EventInfo />} />
 
 
         </Routes>
