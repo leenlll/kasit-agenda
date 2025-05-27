@@ -26,7 +26,7 @@ app.use("/api/emails", emailRoutes);
 const adminRoutes = require("./routes/adminRoutes");  
 app.use("/api/admin", adminRoutes);  
 
-app.use("/api", reminderRoutes);
+//app.use("/api", reminderRoutes);
 
 
 app.get('/', (req, res) => {

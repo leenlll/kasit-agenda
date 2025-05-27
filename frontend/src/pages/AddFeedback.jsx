@@ -43,7 +43,14 @@ const AddFeedback = () => {
     trainingSuggestions: "",
   });
 
- 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setUserChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -154,7 +161,6 @@ const AddFeedback = () => {
                 </tr>
               </thead>
               <tbody>
-                
                 {[
                   { name: "usefulness", label: "Was the event useful for you?" },
                   { name: "participationAgain", label: "Would you participate in such an event again?" },
@@ -177,7 +183,6 @@ const AddFeedback = () => {
                   </tr>
                 ))}
 
-               
                 <tr>
                   <td>Do you prefer curricular or extracurricular activities?</td>
                   <td colSpan="2">
@@ -243,7 +248,7 @@ const AddFeedback = () => {
             </div>
 
             <div className="button-group">
-              <button type="button" className="go-back-btn" onClick={() => navigate(-1)}>
+              <button type="button" className="submit-button" onClick={() => navigate(-1)}>
                 Back
               </button>
               <button type="submit" className="submit-button">

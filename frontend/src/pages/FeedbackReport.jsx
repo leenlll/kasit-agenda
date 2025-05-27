@@ -136,18 +136,20 @@ const FeedbackReport = () => {
     return { segments, total };
   };
 
-  const exportPDF = () => {
-    const input = reportRef.current;
-    const buttons = document.querySelectorAll(".no-print");
+ const exportPDF = () => {
+  const input = reportRef.current;
 
-    
-    buttons.forEach((el) => (el.style.display = "none"));
+  const buttons = document.querySelectorAll(".no-print");
+  buttons.forEach((el) => (el.style.display = "none")); // Hide buttons
 
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+  html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     let position = 0;
 
