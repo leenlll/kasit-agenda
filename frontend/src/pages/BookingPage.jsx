@@ -221,7 +221,7 @@ const BookingPage = () => {
               <option value="">Select Number</option>
               <option value="0-40">0-40 Lecture Halls</option>
               <option value="40-200">40-200 Al-Louzy Auditorium</option>
-</select>
+            </select>
             <div className="button-group">
               <button type="button" onClick={() => navigate(-1)}>Back</button>
               <button type="submit">Submit</button>
