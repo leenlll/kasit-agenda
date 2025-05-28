@@ -142,7 +142,14 @@
   margin-bottom: 1rem;
   box-sizing: border-box;
 }
-
+.forgot-password-text{
+   color: #3e3ea6;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-decoration: underline;
+  text-align: right;
+}
 .forgot-password-buttons {
   display: flex;
   justify-content: space-between;

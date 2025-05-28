@@ -14,7 +14,7 @@ import {
   getDoc,
   addDoc,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { FaClock, FaMapMarkerAlt, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import "./EventInfo.css";
 import Background from "../components/Background";
@@ -22,7 +22,8 @@ import Header from "../components/Header";
 import home from "../assets/home.png";
 import myevents from "../assets/view-requests.png";
 import logoutIcon from "../assets/logout.png";
-import { signOut } from "firebase/auth";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EventInfoPage = () => {
   const [userChecked, setUserChecked] = useState(false);
@@ -34,7 +35,10 @@ const EventInfoPage = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Check user auth state
+  const timeSlot = event?.timeFrom && event?.timeTo
+    ? `${event.timeFrom} - ${event.timeTo}`
+    : "N/A";
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
@@ -44,11 +48,9 @@ const EventInfoPage = () => {
       }
       setUserChecked(true);
     });
-
     return () => unsubscribe();
   }, [navigate]);
 
-  // Fetch event and organizer data
   useEffect(() => {
     const fetchEventAndOrganizer = async () => {
       try {
@@ -58,7 +60,6 @@ const EventInfoPage = () => {
           where("status", "==", "Approved")
         );
         const querySnapshot = await getDocs(q);
-
         if (!querySnapshot.empty) {
           const eventDoc = querySnapshot.docs[0];
           const eventData = { id: eventDoc.id, ...eventDoc.data() };
@@ -85,11 +86,9 @@ const EventInfoPage = () => {
     fetchEventAndOrganizer();
   }, [date]);
 
-  // Check if user already registered for event
   useEffect(() => {
     const checkRegistration = async () => {
       if (!user || !event) return;
-
       try {
         const studentRef = doc(db, "students", user.uid);
         const studentSnap = await getDoc(studentRef);
@@ -108,7 +107,6 @@ const EventInfoPage = () => {
     checkRegistration();
   }, [user, event, date]);
 
-  // Handle event registration
   const handleRegister = async () => {
     if (!user || !event) {
       alert("❌ You must be signed in to register.");
@@ -150,7 +148,6 @@ const EventInfoPage = () => {
     }
   };
 
-  // Handle logout
   const handleLogout = async () => {
     const confirm = window.confirm("Are you sure you want to log out?");
     if (!confirm) return;
@@ -165,16 +162,11 @@ const EventInfoPage = () => {
 
   const isFeedbackAllowed = () => {
     if (!event) return false;
-
     try {
-      const eventDateStr = event.eventDate; // assuming "YYYY-MM-DD" format
-      const timeSlot = event.timeSlot || "00:00 - 00:00";
-      const endTimeStr = timeSlot.split(" - ")[1] || "00:00";
-
-      // Build a Date object for event end datetime
+      const eventDateStr = event.eventDate;
+      const endTimeStr = event.timeTo || "00:00";
       const eventEndDateTime = new Date(`${eventDateStr}T${endTimeStr}:00`);
       const now = new Date();
-
       return now > eventEndDateTime;
     } catch {
       return false;
@@ -190,7 +182,7 @@ const EventInfoPage = () => {
         showAboutUs={false}
         extraRightContent={
           <div className="header-icons">
-            {userChecked && user ? (
+            {userChecked && user && (
               <>
                 <img
                   src={myevents}
@@ -205,7 +197,7 @@ const EventInfoPage = () => {
                   onClick={handleLogout}
                 />
               </>
-            ) : null}
+            )}
             <Link to="/">
               <img src={home} alt="Home" className="home-img" />
             </Link>
@@ -247,8 +239,7 @@ const EventInfoPage = () => {
             {organizer && (
               <div className="event-organizer-info">
                 <p>
-                  <strong>Organizer:</strong> {organizer.firstName}{" "}
-                  {organizer.lastName}
+                  <strong>Organizer:</strong> {organizer.firstName} {organizer.lastName}
                 </p>
                 <p>
                   <strong>Organization:</strong> {organizer.organization}
@@ -262,8 +253,7 @@ const EventInfoPage = () => {
 
             <div className="event-details">
               <p>
-                <FaClock className="event-icon" /> <strong>Time Slot:</strong>{" "}
-                {event.timeSlot || "N/A"}
+                <FaClock className="event-icon" /> <strong>Time Slot:</strong> {timeSlot}
               </p>
               <p>
                 <FaMapMarkerAlt className="event-icon" />{" "}
@@ -290,23 +280,18 @@ const EventInfoPage = () => {
                 Back
               </button>
 
-              {/* Single feedback button with disabled and title */}
               <button
-                className="event-btn"
-                onClick={() => {
-                  console.log("Add Feedback clicked");
-                  navigate(`/add-feedback/${date}`);
-                }}
-                disabled={!showFeedbackButton}
-                title={
-                  !showFeedbackButton
-                    ? "Feedback available only after event ends"
-                    : ""
-                }
-              >
-                Add Feedback
-              </button>
-
+  className="event-btn"
+  onClick={() => {
+    if (!showFeedbackButton) {
+      toast.error("❌ You can only add feedback after the event ends.");
+    } else {
+      navigate(`/add-feedback/${date}`);
+    }
+  }}
+>
+  Add Feedback
+</button>
               <button
                 className="event-btn"
                 onClick={() => {
@@ -330,7 +315,7 @@ const EventInfoPage = () => {
         )}
       </main>
 
-      {userChecked ? (
+      {userChecked && (
         user ? (
           isRegistered ? (
             <p className="event-btn registered-message">
@@ -346,7 +331,8 @@ const EventInfoPage = () => {
             ❌ Please sign in to register for this event.
           </p>
         )
-      ) : null}
+      )}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

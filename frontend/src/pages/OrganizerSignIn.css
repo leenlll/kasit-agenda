@@ -96,14 +96,11 @@
 .forgot-password {
   color: #3e3ea6;
   cursor: pointer;
-  
   font-size: 0.9rem;
   margin-top: 8px;
   text-decoration: underline;
   text-align: right;
 }
-
-
 .popup-overlay {
   position: fixed;
   top: 0;
