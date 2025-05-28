@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./config/firebaseConfig');
-require('dotenv').config(); // ✅ Load .env variables
+require('dotenv').config();
 const app = express();
 const PORT = 3000;
 
@@ -26,7 +26,6 @@ app.use("/api/emails", emailRoutes);
 const adminRoutes = require("./routes/adminRoutes");  
 app.use("/api/admin", adminRoutes);  
 
-//app.use("/api", reminderRoutes);
 
 
 app.get('/', (req, res) => {

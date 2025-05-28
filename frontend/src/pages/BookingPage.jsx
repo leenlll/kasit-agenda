@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,7 +9,13 @@ import Header from "../components/Header";
 import home from "../assets/home.png";
 import viewRequestsIcon from "../assets/view-requests.png";
 import { db, auth } from "../firebaseConfig";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";  // <-- added query, where, getDocs
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import profileIcon from "../assets/profile.png";
 import logoutIcon from "../assets/logout.png";
 import { signOut } from "firebase/auth";
@@ -23,6 +28,9 @@ const BookingPage = () => {
 
   const [user, setUser] = useState(auth.currentUser);
   const [timeError, setTimeError] = useState("");
+  const [toastShown, setToastShown] = useState(false);
+
+  const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -33,8 +41,13 @@ const BookingPage = () => {
       }
     });
 
+    if (selectedDate && selectedDate < today && !toastShown) {
+      toast.error("You can't book for a past date.");
+      setToastShown(true);
+    }
+
     return () => unsubscribe();
-  }, []);
+  }, [selectedDate, toastShown, navigate, today]);
 
   const [formData, setFormData] = useState({
     eventType: "",
@@ -50,6 +63,7 @@ const BookingPage = () => {
     phoneNumber: "",
     guests: "",
     whyAttend: "",
+    attendees: "",
   });
 
   const handleChange = (e) => {
@@ -57,7 +71,8 @@ const BookingPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "timeFrom" || name === "timeTo") {
-      const { timeFrom, timeTo } = { ...formData, [name]: value };
+      const timeFrom = name === "timeFrom" ? value : formData.timeFrom;
+      const timeTo = name === "timeTo" ? value : formData.timeTo;
       if (timeFrom && timeTo) {
         if (timeFrom >= timeTo) {
           setTimeError("End time cannot be earlier than or equal to the start time.");
@@ -73,6 +88,11 @@ const BookingPage = () => {
 
     if (!user) {
       toast.error("Please sign in first!");
+      return;
+    }
+
+    if (selectedDate < today) {
+      toast.error("You can't book for a past date.");
       return;
     }
 
@@ -92,6 +112,7 @@ const BookingPage = () => {
       "targetedStudents",
       "supervisorName",
       "phoneNumber",
+      "attendees",
     ];
 
     for (const field of requiredFields) {
@@ -102,7 +123,6 @@ const BookingPage = () => {
     }
 
     try {
-      // **Check if user already submitted an event on this date**
       const bookingsRef = collection(db, "bookings");
       const q = query(
         bookingsRef,
@@ -124,7 +144,6 @@ const BookingPage = () => {
         status: "Pending",
       };
 
-      // Save booking to Firestore
       await addDoc(collection(db, "bookings"), bookingData);
 
       try {
@@ -198,13 +217,11 @@ const BookingPage = () => {
           transition={{ duration: 0.6 }}
         >
           <h1 className="booking-title">Activity Request Form</h1>
-          <p className="selected-date">
-            Booking for: <strong>{selectedDate || "No Date Selected"}</strong>
-          </p>
+          
 
           <motion.form onSubmit={handleSubmit}>
             <label>Activity Type:</label>
-            <select name="eventType" onChange={handleChange} required>
+            <select name="eventType" value={formData.eventType} onChange={handleChange} required>
               <option value="">Select Activity Type</option>
               <option value="Initiative">Initiative</option>
               <option value="Lecture">Lecture</option>
@@ -212,25 +229,25 @@ const BookingPage = () => {
             </select>
 
             <label>Activity Name:</label>
-            <input type="text" name="eventName" onChange={handleChange} required />
+            <input type="text" name="eventName" value={formData.eventName} onChange={handleChange} required />
 
             <label>Organizing Entity:</label>
-            <input type="text" name="organizer" onChange={handleChange} required />
+            <input type="text" name="organizer" value={formData.organizer} onChange={handleChange} required />
 
             <label>Description & Objectives:</label>
-            <textarea name="description" onChange={handleChange} required />
+            <textarea name="description" value={formData.description} onChange={handleChange} required />
 
             <label>Time:</label>
             <div className="time-inputs">
-              <input type="time" name="timeFrom" onChange={handleChange} required />
+              <input type="time" name="timeFrom" value={formData.timeFrom} onChange={handleChange} required />
               <span> to </span>
-              <input type="time" name="timeTo" onChange={handleChange} required />
+              <input type="time" name="timeTo" value={formData.timeTo} onChange={handleChange} required />
             </div>
 
             {timeError && <p className="error-message">{timeError}</p>}
 
             <label>Location:</label>
-            <select name="location" onChange={handleChange} required>
+            <select name="location" value={formData.location} onChange={handleChange} required>
               <option value="">Select Location</option>
               <option value="Al-Louzy Auditorium">Al-Louzy Auditorium</option>
               <option value="Ground Floor">Ground Floor</option>
@@ -250,29 +267,30 @@ const BookingPage = () => {
             </select>
 
             <label>Target Audience:</label>
-            <input type="text" name="targetedStudents" onChange={handleChange} required />
+            <input type="text" name="targetedStudents" value={formData.targetedStudents} onChange={handleChange} required />
 
             <label>Required Support Services:</label>
-            <textarea name="requiredServices" onChange={handleChange} />
+            <textarea name="requiredServices" value={formData.requiredServices} onChange={handleChange} />
 
             <label>Activity Supervisor:</label>
-            <input type="text" name="supervisorName" onChange={handleChange} required />
+            <input type="text" name="supervisorName" value={formData.supervisorName} onChange={handleChange} required />
 
             <label>Supervisor Contact Number:</label>
-            <input type="tel" name="phoneNumber" onChange={handleChange} required />
+            <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
 
             <label>Guests / Invitees:</label>
-            <input type="text" name="guests" onChange={handleChange} />
+            <input type="text" name="guests" value={formData.guests} onChange={handleChange} />
 
             <label>Why Should Students Attend?</label>
-            <textarea name="whyAttend" onChange={handleChange} />
+            <textarea name="whyAttend" value={formData.whyAttend} onChange={handleChange} />
 
             <label>Max Number of attendees:</label>
-            <select name="no. of attendees" onChange={handleChange} required>
+            <select name="attendees" value={formData.attendees} onChange={handleChange} required>
               <option value="">Select Number</option>
               <option value="0-40">0-40 Lecture Halls</option>
               <option value="40-200">40-200 Al-Louzy Auditorium</option>
             </select>
+
             <div className="button-group">
               <button type="button" className="button" onClick={() => navigate(-1)}>
                 Back
