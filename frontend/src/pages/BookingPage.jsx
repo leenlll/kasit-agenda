@@ -264,6 +264,29 @@ const BookingPage = () => {
               <option value="301">Lecture Hall 301</option>
               <option value="302">Lecture Hall 302</option>
               <option value="303">Lecture Hall 303</option>
+              <option value="001">Lab 001</option>
+              <option value="002">Lab 002</option>
+              <option value="101">Lab 101</option>
+              <option value="102">Lab 102</option>
+              <option value="103">Lab 103</option>
+              <option value="104">Lab 104</option>
+              <option value="105">Lab 105</option>
+              <option value="106">Lab 106</option>
+              <option value="107">Lab 107</option>
+              <option value="201">Lab 201</option>
+              <option value="202">Lab 202</option>
+              <option value="203">Lab 203</option>
+              <option value="204">Lab 204</option>
+              <option value="205">Lab 205</option>
+              <option value="206">Lab 206</option>
+              <option value="207">Lab 207</option>
+              <option value="301">Lab 301</option>
+              <option value="302">Lab 302</option>
+              <option value="303">Lab 303</option>
+              <option value="304">Lab 304</option>
+              <option value="305">Lab 305</option>
+              <option value="306">Lab 306</option>
+              <option value="307">Lab 307</option>
             </select>
 
             <label>Target Audience:</label>
