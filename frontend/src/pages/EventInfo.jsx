@@ -141,7 +141,6 @@ const EventInfoPage = () => {
         });
       }
 
-      // ✅ Send confirmation email
 await axios.post("http://localhost:3000/api/emails/register-confirmation", {
         to: user.email,
         eventName: event.eventName,

@@ -47,8 +47,8 @@ useEffect(() => {
       const bookedQuery = query(eventsCollection, where("status", "==", "Approved"));
 
       const querySnapshot = await getDocs(bookedQuery);
-      const bookedList = [];
 
+      const bookedList = [];
       querySnapshot.forEach((doc) => {
         const eventData = doc.data();
         console.log("📌 Fetched Event:", eventData);
@@ -66,7 +66,7 @@ useEffect(() => {
         }
 
         if (!isNaN(eventDate.getTime())) {
-          bookedList.push(eventDate.toISOString().split("T")[0]); // ✅ Convert to YYYY-MM-DD
+          bookedList.push(eventDate.toISOString().split("T")[0]);
         } else {
           console.warn("⚠️ Skipping invalid event date:", eventData);
         }
