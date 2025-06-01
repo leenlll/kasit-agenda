@@ -24,6 +24,7 @@ import myevents from "../assets/view-requests.png";
 import logoutIcon from "../assets/logout.png";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 const EventInfoPage = () => {
   const [userChecked, setUserChecked] = useState(false);
@@ -109,7 +110,7 @@ const EventInfoPage = () => {
 
   const handleRegister = async () => {
     if (!user || !event) {
-      alert("❌ You must be signed in to register.");
+      toast.error("❌ You must be signed in to register.");
       return;
     }
 
@@ -140,11 +141,18 @@ const EventInfoPage = () => {
         });
       }
 
+      // ✅ Send confirmation email
+await axios.post("http://localhost:3000/api/emails/register-confirmation", {
+        to: user.email,
+        eventName: event.eventName,
+        eventDate: date,
+      });
+
       setIsRegistered(true);
-      alert("✅ You are now registered for this event.");
+      toast.success("✅ You are now registered! Confirmation email sent.");
     } catch (error) {
       console.error("❌ Registration error:", error);
-      alert("Something went wrong.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -238,60 +246,34 @@ const EventInfoPage = () => {
 
             {organizer && (
               <div className="event-organizer-info">
-                <p>
-                  <strong>Organizer:</strong> {organizer.firstName} {organizer.lastName}
-                </p>
-                <p>
-                  <strong>Organization:</strong> {organizer.organization}
-                </p>
-                <p>
-                  <strong>Email:</strong>{" "}
-                  <a href={`mailto:${organizer.email}`}>{organizer.email}</a>
-                </p>
+                <p><strong>Organizer:</strong> {organizer.firstName} {organizer.lastName}</p>
+                <p><strong>Organization:</strong> {organizer.organization}</p>
+                <p><strong>Email:</strong> <a href={`mailto:${organizer.email}`}>{organizer.email}</a></p>
               </div>
             )}
 
             <div className="event-details">
-              <p>
-                <FaClock className="event-icon" /> <strong>Time Slot:</strong> {timeSlot}
-              </p>
-              <p>
-                <FaMapMarkerAlt className="event-icon" />{" "}
-                <strong>Location:</strong> {event.location || "Not provided"}
-              </p>
-              <p>
-                <FaUsers className="event-icon" /> <strong>Guests:</strong>{" "}
-                {event.guests?.trim() || "None"}
-              </p>
-              {event.targetedStudents && (
-                <p>
-                  <strong>Targeted Students:</strong> {event.targetedStudents}
-                </p>
-              )}
-              {event.resources && (
-                <p>
-                  <strong>Resources:</strong> {event.resources}
-                </p>
-              )}
+              <p><FaClock className="event-icon" /> <strong>Time Slot:</strong> {timeSlot}</p>
+              <p><FaMapMarkerAlt className="event-icon" /> <strong>Location:</strong> {event.location || "Not provided"}</p>
+              <p><FaUsers className="event-icon" /> <strong>Guests:</strong> {event.guests?.trim() || "None"}</p>
+              {event.targetedStudents && <p><strong>Targeted Students:</strong> {event.targetedStudents}</p>}
+              {event.resources && <p><strong>Resources:</strong> {event.resources}</p>}
             </div>
 
             <div className="button-group">
-              <button className="event-btn" onClick={() => navigate(-1)}>
-                Back
-              </button>
-
+              <button className="event-btn" onClick={() => navigate(-1)}>Back</button>
               <button
-  className="event-btn"
-  onClick={() => {
-    if (!showFeedbackButton) {
-      toast.error("❌ You can only add feedback after the event ends.");
-    } else {
-      navigate(`/add-feedback/${date}`);
-    }
-  }}
->
-  Add Feedback
-</button>
+                className="event-btn"
+                onClick={() => {
+                  if (!showFeedbackButton) {
+                    toast.error("❌ You can only add feedback after the event ends.");
+                  } else {
+                    navigate(`/add-feedback/${date}`);
+                  }
+                }}
+              >
+                Add Feedback
+              </button>
               <button
                 className="event-btn"
                 onClick={() => {
@@ -332,6 +314,7 @@ const EventInfoPage = () => {
           </p>
         )
       )}
+
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );

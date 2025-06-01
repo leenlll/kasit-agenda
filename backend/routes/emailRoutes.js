@@ -1,9 +1,9 @@
 const express = require("express");
-const { sendEmail } = require("../services/emailService"); 
+const { sendEmail } = require("../services/emailService");
 const router = express.Router();
-const db = require("../config/firebaseConfig"); 
+const db = require("../config/firebaseConfig");
 
-
+// ✅ 1. Generic email route
 router.post("/send-email", async (req, res) => {
   const { recipient, subject, message } = req.body;
 
@@ -29,64 +29,37 @@ router.post("/send-email", async (req, res) => {
   }
 });
 
+// ✅ 2. Student registration confirmation email route
+router.post("/register-confirmation", async (req, res) => {
+  const { to, eventName, eventDate } = req.body;
 
+  if (!to || !eventName || !eventDate) {
+    console.error("❌ Missing registration email fields:", { to, eventName, eventDate });
+    return res.status(400).json({ success: false, message: "Missing email fields." });
+  }
 
-router.get("/send-reminders", async (req, res) => {
-  const now = new Date();
+  const subject = `✅ Registration Confirmed: ${eventName}`;
+  const message = `
+Hello,
 
-  const startOfTomorrow = new Date(now);
-  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
-  startOfTomorrow.setHours(0, 0, 0, 0);
+You’ve successfully registered for the event:
 
-  const endOfTomorrow = new Date(startOfTomorrow);
-  endOfTomorrow.setHours(23, 59, 59, 999);
+📝 Event: ${eventName}
+📅 Date: ${eventDate}
 
-  try {
-    const snapshot = await db.collection("eventRequests")
-      .where("status", "==", "approved")
-      .where("eventDate", ">=", startOfTomorrow)
-      .where("eventDate", "<=", endOfTomorrow)
-      .get();
-
-    if (snapshot.empty) {
-      console.log("📭 No events scheduled for tomorrow.");
-      return res.status(200).json({ success: true, message: "No events to remind." });
-    }
-
-    const reminders = snapshot.docs.map(async (doc) => {
-      const data = doc.data();
-      const formattedDate = data.eventDate.toDate().toLocaleDateString();
-
-      const message = `
-Hello ${data.organizerName},
-
-Just a reminder that your approved event "${data.eventName}" is happening tomorrow:
-
-📝 Event:        ${data.eventName}
-📅 Date:         ${formattedDate}
-🕒 Time:         ${data.timeFrom} – ${data.timeTo}
-📍 Location:     ${data.location}
-
-Good luck! Check your dashboard for any updates.
+Thank you for registering.
+We look forward to seeing you at the event!
 
 — KASIT Agenda System
-      `.trim();
+`.trim();
 
-      return sendEmail(
-        data.organizerEmail,
-        `⏰ Reminder: "${data.eventName}" is Tomorrow`,
-        message
-      );
-    });
-
-    await Promise.all(reminders);
-
-    console.log("✅ Reminder emails sent.");
-    res.status(200).json({ success: true, message: "Reminder emails sent!" });
-
+  try {
+    const result = await sendEmail(to, subject, message);
+    console.log(`📤 Confirmation email sent to ${to}`);
+    return res.status(200).json(result);
   } catch (error) {
-    console.error("❌ Error sending reminders:", error);
-    res.status(500).json({ success: false, message: "Error sending reminders." });
+    console.error("❌ Failed to send registration confirmation email:", error);
+    return res.status(500).json({ success: false, message: "Failed to send confirmation email." });
   }
 });
 
