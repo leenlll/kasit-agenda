@@ -147,7 +147,7 @@ const BookingPage = () => {
       await addDoc(collection(db, "bookings"), bookingData);
 
       try {
-        await axios.post("https://kasit-agenda.onrender.com/api/bookings/book-event", {
+        await axios.post("http://localhost:3000/api/bookings/book-event", {
           organizerEmail: user.email,
           organizerName: formData.organizer,
           eventName: formData.eventName,
@@ -310,7 +310,7 @@ const BookingPage = () => {
             <label>Max Number of attendees:</label>
             <select name="attendees" value={formData.attendees} onChange={handleChange} required>
               <option value="">Select Number</option>
-              <option value="0-40">0-40 Lecture Halls</option>
+              <option value="0-40">0-40 Lecture Halls/ Labs</option>
               <option value="40-200">40-200 Al-Louzy Auditorium</option>
             </select>
 

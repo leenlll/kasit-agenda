@@ -459,7 +459,7 @@ const AdminDashboard = () => {
 
   const sendStatusEmail = async (organizerEmail, eventName, status, denialReason = "") => {
     try {
-      const res = await axios.post("https://kasit-agenda.onrender.com/api/admin/update-booking-status", {
+      const res = await axios.post("http://localhost:3000/api/admin/update-booking-status", {
         organizerEmail,
         eventName,
         status,
