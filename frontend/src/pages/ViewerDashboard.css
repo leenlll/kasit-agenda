@@ -8,7 +8,7 @@
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  padding-top: 115px;
+  padding-top: 110px;
 }
 
 .viewer-title {
@@ -233,3 +233,10 @@
   line-height: 1.4;
 }
 
+.react-calendar__month-view__weekdays {
+  direction: rtl;
+}
+
+.react-calendar__month-view__days {
+  direction: rtl;
+}

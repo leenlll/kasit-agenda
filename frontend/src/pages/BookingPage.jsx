@@ -190,19 +190,19 @@ const BookingPage = () => {
         showAboutUs={false}
         extraRightContent={
           <div className="header-icons">
+            <Link to="/view-requests">
+              <img src={viewRequestsIcon} alt="View Requests" className="requests-img" />
+            </Link>
+            <Link to="/">
             <Link to="/edit-profile">
               <img src={profileIcon} alt="Profile" className="profile-icon" />
-            </Link>
+            </Link> 
             <img
               src={logoutIcon}
               alt="Logout"
               className="logout-icon"
               onClick={handleLogout}
             />
-            <Link to="/view-requests">
-              <img src={viewRequestsIcon} alt="View Requests" className="requests-img" />
-            </Link>
-            <Link to="/">
               <img src={home} alt="Home" className="home-img" />
             </Link>
           </div>
