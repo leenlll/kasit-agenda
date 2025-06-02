@@ -8,7 +8,7 @@
   justify-content: center;
   text-align: center;
   overflow: hidden;
-  padding-top: 110px;
+  padding-top: 125px;
 }
 
 .viewer-title {
@@ -232,11 +232,12 @@
   color: black;
   line-height: 1.4;
 }
-
 .react-calendar__month-view__weekdays {
-  direction: rtl;
+  direction: ltr; 
+}
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  direction: ltr !important;
 }
 
-.react-calendar__month-view__days {
-  direction: rtl;
-}

@@ -173,6 +173,8 @@ useEffect(() => {
             onClickDay={handleDateClick}
             tileClassName={tileClassName}
             tileContent={tileContent}
+  locale="en-US"
+    showNeighboringMonth={true}
           />
         </motion.div>
 
