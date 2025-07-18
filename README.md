@@ -98,6 +98,19 @@ kasit-agenda/
 
 ---
 
+## Project Structure
+
+This project contains multiple types of files used for different parts of the system:
+
+- `.aspx` and `.aspx.cs` files: Legacy ASP.NET WebForms pages that handle some backend and UI functionality.
+- React files (`.jsx`, `.js`): The modern frontend components and pages.
+- Other supporting files: CSS, JSON configs, and scripts.
+
+All files are currently kept in the root directory for simplicity. Despite this, the project runs both legacy WebForms and React frontend parts together.
+
+---
+---
+
 
 ##  About
 
