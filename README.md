@@ -109,7 +109,6 @@ This project contains multiple types of files used for different parts of the sy
 All files are currently kept in the root directory for simplicity. Despite this, the project runs both legacy WebForms and React frontend parts together.
 
 ---
----
 
 
 ##  About
